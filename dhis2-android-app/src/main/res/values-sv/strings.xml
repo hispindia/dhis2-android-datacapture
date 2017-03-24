@@ -1,6 +1,6 @@
 <?xml version='1.0' encoding='utf-8'?>
 <resources>
-  <string name="app_name">dhis2-android-skeleton</string>
+  <string name="app_name">DHIS2 Datainsamling</string>
   <string name="title_activity_launcher">LauncherActivity</string>
   <string name="title_activity_login">LoginActivity</string>
   <string name="desc">stub image</string>
@@ -25,8 +25,8 @@
   <string name="enter_date">Ange datum (åååå.mm.dd)</string>
   <string name="find_option">Hitta alternativ</string>
   <string name="upload">Ladda upp</string>
-  <string name="login_button">Inloggning</string>
-  <string name="log_out">Utloggning</string>
+  <string name="login_button">Logga in</string>
+  <string name="log_out">Logga ut</string>
   <string name="save">Spara</string>
   <string name="first_name">Förnamn</string>
   <string name="surname">Efternamn</string>
@@ -62,15 +62,15 @@
   <string name="choose_item">Välj objekt</string>
   <string name="choose_data_set">Välj dataset</string>
   <string name="choose_program">Välj program</string>
-  <string name="choose_unit">"Välja organisationenhet "</string>
+  <string name="choose_unit">Välja organisationenhet</string>
   <string name="choose_period">Välj period</string>
   <string name="longitude">Longitud</string>
   <string name="latitude">Latitud</string>
   <string name="coordinates">Koordinater</string>
-  <string name="complete_date">Färdigdatum</string>
+  <string name="complete_date">Slutdatum</string>
   <string name="choose_report_date">Välj rapport datum</string>
   <string name="download_forms">Ladda ner blanketter</string>
-  <string name="aggregate_reporting">Aggregat Rapport</string>
+  <string name="aggregate_reporting">Sammanfattande rapport</string>
   <string name="profile">Profil</string>
   <string name="organization_unit">Organisationenhet</string>
   <string name="description">Beskrivning</string>
@@ -79,5 +79,6 @@
   <string name="period">Period</string>
   <string name="swipe_to_update">Dra för att uppdatera</string>
   <string name="no_forms_found">Inga blanketter finns för aktuell användare</string>
-  <string name="placeholder">Something important goes here</string>
+  <string name="drawer_item_placeholder">Objekt</string>
+  <string name="placeholder">Något viktigt är här</string>
 </resources>
