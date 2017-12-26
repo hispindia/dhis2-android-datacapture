@@ -68,7 +68,10 @@ public class ReportUploadProcessor {
         if (!NetworkUtils.checkConnection(context)) {
             saveDataset(context, data, info);
             return;
+        }else{
+            saveDataset(context, data, info);//added by ifhaam to make sure app is working offline
         }
+
 
         String url = PrefUtils.getServerURL(context) + URLConstants.DATASET_UPLOAD_URL;
         String creds = PrefUtils.getCredentials(context);

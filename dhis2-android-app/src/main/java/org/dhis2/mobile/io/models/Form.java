@@ -128,4 +128,22 @@ public class Form implements Serializable, Parcelable {
     public void setApproved(boolean approved) {
         isApproved = approved;
     }
+
+    //added by ifhaam for tibet loading previous data feature on 26/12/2017
+    public boolean isEmpty(){
+        boolean empty = true;
+        for(Group gp :groups){
+            for(Field fd :gp.getFields()){
+                if(!fd.getValue().equals("")){
+                    empty =false;
+                    break;
+                }
+            }
+            if(!empty){
+                break;
+            }
+        }
+
+        return empty;
+    }
 }

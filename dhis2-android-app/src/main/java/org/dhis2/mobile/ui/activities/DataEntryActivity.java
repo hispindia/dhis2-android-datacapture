@@ -16,6 +16,7 @@ import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.AppCompatSpinner;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -51,8 +52,12 @@ import org.dhis2.mobile.utils.ToastManager;
 import org.dhis2.mobile.utils.ViewUtils;
 import org.dhis2.mobile.utils.date.expiryday.ExpiryDayValidator;
 import org.dhis2.mobile.utils.date.expiryday.ExpiryDayValidatorFactory;
+import org.joda.time.DateTime;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -498,6 +503,7 @@ public class DataEntryActivity extends BaseActivity implements LoaderManager.Loa
             int code = intent.getExtras().getInt(Response.CODE);
             int parsingStatusCode = intent.getExtras().getInt(JsonHandler.PARSING_STATUS_CODE);
 
+            //if there is no data will reach here
             if (HTTPClient.isError(code) || parsingStatusCode != JsonHandler.PARSING_OK_CODE) {
                 // load form from disk
                 getSupportLoaderManager().restartLoader(LOADER_FORM_ID, null,
@@ -505,9 +511,17 @@ public class DataEntryActivity extends BaseActivity implements LoaderManager.Loa
                 return;
             }
 
+
+            //if data is there will reach here
             if (intent.getExtras().containsKey(Response.BODY)) {
                 Form form = intent.getExtras().getParcelable(Response.BODY);
                 currentForm = form;
+
+                if(form.isEmpty()){
+                    getSupportLoaderManager().restartLoader(LOADER_FORM_ID,null,
+                            DataEntryActivity.this).forceLoad();
+                    return;
+                }
 
                 if (form != null) {
                     loadGroupsIntoAdapters(form.getGroups(), currentForm);
@@ -559,15 +573,52 @@ public class DataEntryActivity extends BaseActivity implements LoaderManager.Loa
                 return;
             }
 
-            String reportKey = DatasetInfoHolder.buildKey(infoHolder);
-            if (isEmpty(reportKey)) {
-                return;
+            //TODO:adding earlier data for the offline mood here
+            String report= null;
+            if(infoHolder.getFormLabel().equals("Cash flow Dataset")){
+                //addding changes on 15/12/2017
+
+                DatasetInfoHolder tempHolder = new DatasetInfoHolder();
+                tempHolder.setCategoryOptions(infoHolder.getCategoryOptions());
+                tempHolder.setPeriod(infoHolder.getPeriod());
+                tempHolder.setFormId(infoHolder.getFormId());
+                tempHolder.setFormLabel(infoHolder.getFormLabel());
+                tempHolder.setOrgUnitId(infoHolder.getOrgUnitId());
+
+                //if(report)
+                int tries = 0;
+                //we are creating a temp infoholder because the real one may be used later so we cant alter it
+                do{
+                    String reportKey = DatasetInfoHolder.buildKey(tempHolder);
+                    if(isEmpty(reportKey)){
+                        return;
+                    }
+
+                    report = loadReport(reportKey);
+                    if(report==null || isEmpty(report)){
+                        tempHolder.setPeriod(dateBefore(tempHolder.getPeriod()));
+                    }
+                    tries++;
+                    if(tries==14) return;
+                }while(report==null);
+                //changes ends
+            }else{
+                //changed by ifhaam for adding earlier data for offline report
+                String reportKey = DatasetInfoHolder.buildKey(infoHolder);
+                if (isEmpty(reportKey)) {
+                    return;
+                }
+
+
+                report = loadReport(reportKey);
+                if (isEmpty(report)) {
+                    return;
+                }
             }
 
-            String report = loadReport(reportKey);
-            if (isEmpty(report)) {
-                return;
-            }
+
+
+
 
             Map<String, String> fieldMap = new HashMap<>();
 
@@ -714,5 +765,27 @@ public class DataEntryActivity extends BaseActivity implements LoaderManager.Loa
 
     private void showToast(int resId){
         Toast.makeText(this, resId, Toast.LENGTH_LONG).show();
+    }
+
+    public static String dateBefore(String dateStr){
+        if(dateStr==null)return null;
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd");
+        try{
+            Date date = sdf.parse(dateStr);
+            Calendar cal = Calendar.getInstance();
+            cal.setTime(date);
+            cal.add(Calendar.DATE,-1);
+            Date yesterday = cal.getTime();
+            return sdf.format(yesterday);
+        }catch(Exception ex){
+            Log.i("Date Parsing Error",ex+"");
+            return null;
+        }
+
+        //int year = Integer.parseInt(date.substring(0,4));
+        //int month = Integer.parseInt(date.substring(4,6));
+        //int day = Integer.parseInt(date.substring(6,8));
+        //day = day-1;
+        //return ""+year+month+day;
     }
 }

@@ -85,6 +85,7 @@ public class ReportDownloadProcessor {
         intent.putExtra(Response.CODE, responseCode);
         intent.putExtra(JsonHandler.PARSING_STATUS_CODE, parsingStatusCode);
 
+
         if (form != null) {
             intent.putExtra(Response.BODY, (Parcelable) form);
         }

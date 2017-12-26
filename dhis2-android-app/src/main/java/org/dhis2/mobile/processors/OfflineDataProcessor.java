@@ -109,8 +109,8 @@ public class OfflineDataProcessor {
                             SyncLogger.getNotification(info));
 
                     // Removing uploaded data
-                    TextFileUtils.removeFile(reportFile);
-                    PrefUtils.removeOfflineReportInfo(context, reportFile.getName());
+                    // TextFileUtils.removeFile(reportFile); removed by ifhaam for adding offline feature
+                    // PrefUtils.removeOfflineReportInfo(context, reportFile.getName()); removed for the above purpose
                 } else {
 
                     NotificationBuilder.fireNotification(context,
