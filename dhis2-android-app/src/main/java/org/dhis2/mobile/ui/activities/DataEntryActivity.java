@@ -517,7 +517,7 @@ public class DataEntryActivity extends BaseActivity implements LoaderManager.Loa
                 Form form = intent.getExtras().getParcelable(Response.BODY);
                 currentForm = form;
 
-                if(form.isEmpty()){
+                if(form.getLabel().equals("Cash flow Dataset")  && form.isEmpty()){
                     getSupportLoaderManager().restartLoader(LOADER_FORM_ID,null,
                             DataEntryActivity.this).forceLoad();
                     return;
