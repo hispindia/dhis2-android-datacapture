@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <string name="app_name">DHIS2 Data Capture (dev)</string>
+    <string name="app_name">DHIS2 Data Capture</string>
     <string name="title_activity_launcher">LauncherActivity</string>
     <string name="title_activity_login">LoginActivity</string>
     <string name="desc">stub image</string>
@@ -75,6 +75,7 @@
     <string name="username">Username</string>
     <string name="password">Password</string>
     <string name="server_url">Enter server URL</string>
+    <string name="server_url_link">http://139.162.16.101/tibet_pro</string>
 
     <!-- String resources for aggregate report fragment -->
     <string name="sync">Sync</string>
