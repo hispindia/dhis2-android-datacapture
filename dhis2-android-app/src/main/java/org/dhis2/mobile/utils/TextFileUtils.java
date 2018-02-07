@@ -43,7 +43,7 @@ public final class TextFileUtils {
     private static final String TAG = TextFileUtils.class.getSimpleName();
 
     public enum FileNames {
-        ORG_UNITS_WITH_DATASETS, ACCOUNT_INFO, LOG
+        ORG_UNITS_WITH_DATASETS, ACCOUNT_INFO, LOG,CASH_FLOW_RATE_DATA_ELEMENTS
     }
 
     public enum Directory {

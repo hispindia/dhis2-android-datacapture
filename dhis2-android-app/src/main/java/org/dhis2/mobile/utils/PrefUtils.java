@@ -53,7 +53,8 @@ public class PrefUtils {
     public static enum Resources {
         DATASETS,
         SINGLE_EVENTS_WITHOUT_REGISTRATION,
-        PROFILE_DETAILS
+        PROFILE_DETAILS,
+        CASH_FLOW_DATASET_ELEMENT_GROUP
     }
 
     public static enum State {

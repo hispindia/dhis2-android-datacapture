@@ -50,6 +50,7 @@ import com.google.gson.JsonSyntaxException;
 import org.dhis2.mobile.io.Constants;
 import org.dhis2.mobile.io.json.JsonHandler;
 import org.dhis2.mobile.io.json.ParsingException;
+import org.dhis2.mobile.io.models.DataElement;
 import org.dhis2.mobile.io.models.Field;
 import org.dhis2.mobile.io.models.Form;
 import org.dhis2.mobile.io.models.Group;
@@ -63,6 +64,7 @@ import org.dhis2.mobile.ui.activities.LoginActivity;
 import org.dhis2.mobile.ui.fragments.AggregateReportFragment;
 import org.dhis2.mobile.utils.PrefUtils;
 import org.dhis2.mobile.utils.TextFileUtils;
+import org.json.JSONObject;
 
 import java.net.HttpURLConnection;
 import java.util.ArrayList;
@@ -83,6 +85,8 @@ public class FormsDownloadProcessor {
     private static final String OPTIONS = "options";
     private static final String CATEGORY_COMBO = "categoryCombo";
 
+    private static final String DATA_ELEMENTS = "dataElements";
+
     public static void updateDatasets(Context context, boolean isFirstPull) {
         PrefUtils.setResourceState(context,
                 PrefUtils.Resources.DATASETS,
@@ -93,6 +97,7 @@ public class FormsDownloadProcessor {
 
         try {
             downloadDatasets(context, PrefUtils.getServerVersion(context).equals(Constants.API_25));
+            downloadDataElements(context,PrefUtils.getServerVersion(context).equals(Constants.API_25));
         } catch (NetworkException e) {
             e.printStackTrace();
             networkStatusCode = e.getErrorCode();
@@ -127,6 +132,41 @@ public class FormsDownloadProcessor {
             intent.putExtra(JsonHandler.PARSING_STATUS_CODE, parsingStatusCode);
         }
         LocalBroadcastManager.getInstance(context).sendBroadcast(intent);
+
+    }
+
+    private static void downloadDataElements(Context context,boolean oldApi) throws NetworkException,ParsingException{
+        System.out.println("is old apo"+oldApi);
+        final String creds = PrefUtils.getCredentials(context);
+        final String server = PrefUtils.getServerURL(context);
+        final String dataElementsUrl = server + URLConstants.DATA_ELEMENT_GROUPS+"/"+
+                URLConstants.CASHFLOW_RATE_DATAELEMENTS_GROUP_ID;
+
+        Response response  = download(dataElementsUrl,creds);
+        JsonObject jSource = buildJsonObject(response);
+
+        if(!jSource.has(DATA_ELEMENTS)){
+            TextFileUtils.removeFile(context,
+                    TextFileUtils.Directory.ROOT,
+                    TextFileUtils.FileNames.CASH_FLOW_RATE_DATA_ELEMENTS);
+            PrefUtils.setResourceState(context,
+                    PrefUtils.Resources.CASH_FLOW_DATASET_ELEMENT_GROUP,
+                    PrefUtils.State.ATTEMPT_TO_REFRESH_IS_MADE);
+
+            return;
+        }
+
+        JsonArray jDataElemets = getJsonArray(jSource,DATA_ELEMENTS);
+
+        DataElement[] dataElements = handleDataElements(jDataElemets);
+        Gson gson = new Gson();
+
+        String dataElementsString = gson.toJson(dataElements);
+        TextFileUtils.writeTextFile(context,
+                TextFileUtils.Directory.ROOT,
+                TextFileUtils.FileNames.CASH_FLOW_RATE_DATA_ELEMENTS,
+                dataElementsString);
+
 
     }
 
@@ -175,6 +215,17 @@ public class FormsDownloadProcessor {
                 TextFileUtils.Directory.ROOT,
                 TextFileUtils.FileNames.ORG_UNITS_WITH_DATASETS,
                 orgUnitsWithDatasets);
+    }
+
+    private static DataElement[] handleDataElements(JsonArray jDataElements) throws ParsingException{
+
+
+
+
+        DataElement[] dataElements = fromJson(jDataElements, DataElement[].class);
+
+        return  dataElements;
+
     }
 
     private static OrganizationUnit[] handleUnitsWithDatasets(

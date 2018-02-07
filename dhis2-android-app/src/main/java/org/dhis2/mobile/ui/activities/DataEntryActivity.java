@@ -30,6 +30,7 @@ import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.Toast;
 
+import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -40,6 +41,7 @@ import org.dhis2.mobile.io.Constants;
 import org.dhis2.mobile.io.holders.DatasetInfoHolder;
 import org.dhis2.mobile.io.json.JsonHandler;
 import org.dhis2.mobile.io.json.ParsingException;
+import org.dhis2.mobile.io.models.DataElement;
 import org.dhis2.mobile.io.models.Field;
 import org.dhis2.mobile.io.models.Form;
 import org.dhis2.mobile.io.models.Group;
@@ -59,6 +61,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -531,6 +534,7 @@ public class DataEntryActivity extends BaseActivity implements LoaderManager.Loa
     };
 
     private static class DataLoader extends AsyncTaskLoader<Form> {
+        private static final String RATE_FIELDS = "Rate Feilds";
         private final DatasetInfoHolder infoHolder;
 
         public DataLoader(Context context, DatasetInfoHolder infoHolder) {
@@ -558,7 +562,8 @@ public class DataEntryActivity extends BaseActivity implements LoaderManager.Loa
                     getContext(), TextFileUtils.Directory.DATASETS, infoHolder.getFormId());
             try {
                 JsonObject jsonForm = JsonHandler.buildJsonObject(jForm);
-                return JsonHandler.fromJson(jsonForm, Form.class);
+                Form form = JsonHandler.fromJson(jsonForm, Form.class);
+                return form;
             } catch (NullPointerException e) {
                 e.printStackTrace();
             } catch (ParsingException e) {
@@ -575,18 +580,31 @@ public class DataEntryActivity extends BaseActivity implements LoaderManager.Loa
 
             //TODO:adding earlier data for the offline mood here
             String report= null;
+            int tries = 0;
+            ArrayList<String> dataElementIds = new ArrayList<>();
+            DatasetInfoHolder tempHolder = new DatasetInfoHolder();
             if(infoHolder.getFormLabel().equals("Cash flow Dataset")){
                 //addding changes on 15/12/2017
 
-                DatasetInfoHolder tempHolder = new DatasetInfoHolder();
+                String jDataElements = TextFileUtils.readTextFile(getContext(),TextFileUtils.Directory.ROOT,
+                        TextFileUtils.FileNames.CASH_FLOW_RATE_DATA_ELEMENTS);
+
+                DataElement[] dataElements = new Gson().fromJson(jDataElements,DataElement[].class);
+                for(DataElement dt :dataElements){
+                    dataElementIds.add(dt.getId());
+                }
+
+
                 tempHolder.setCategoryOptions(infoHolder.getCategoryOptions());
                 tempHolder.setPeriod(infoHolder.getPeriod());
                 tempHolder.setFormId(infoHolder.getFormId());
                 tempHolder.setFormLabel(infoHolder.getFormLabel());
                 tempHolder.setOrgUnitId(infoHolder.getOrgUnitId());
 
+
+
                 //if(report)
-                int tries = 0;
+
                 //we are creating a temp infoholder because the real one may be used later so we cant alter it
                 do{
                     String reportKey = DatasetInfoHolder.buildKey(tempHolder);
@@ -597,8 +615,9 @@ public class DataEntryActivity extends BaseActivity implements LoaderManager.Loa
                     report = loadReport(reportKey);
                     if(report==null || isEmpty(report)){
                         tempHolder.setPeriod(dateBefore(tempHolder.getPeriod()));
+                        tries++;
                     }
-                    tries++;
+
                     if(tries==14) return;
                 }while(report==null);
                 //changes ends
@@ -639,12 +658,18 @@ public class DataEntryActivity extends BaseActivity implements LoaderManager.Loa
                         continue;
                     }
 
+
+
                     for (Field field : group.getFields()) {
                         String key = buildFieldKey(field.getDataElement(),
                                 field.getCategoryOptionCombo());
 
                         String value = fieldMap.get(key);
-                        if (!isEmpty(value)) {
+                        if(tries>0){
+                            if(dataElementIds.contains(field.getDataElement()) && !isEmpty(value)){
+                                field.setValue(value);
+                            }
+                        }else if (!isEmpty(value)) {
                             field.setValue(value);
                         }
                     }
