@@ -30,7 +30,7 @@
         android:layout_below="@id/dhis2_logo"
         android:layout_centerHorizontal="true"
         android:drawableLeft="@drawable/ic_server"
-        android:hint="@string/server_url"
+        android:text="@string/server_url_link"
         android:inputType="textUri"
         app:font="@string/regular_font_name" />
 
