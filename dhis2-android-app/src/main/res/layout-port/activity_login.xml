@@ -27,6 +27,8 @@
     <org.dhis2.mobile.ui.views.FontEditText
         android:id="@+id/server_url"
         style="@style/LoginEditTextProperies"
+        android:text="@string/server_url_up"
+        android:enabled="false"
         android:layout_below="@id/dhis2_logo"
         android:layout_centerHorizontal="true"
         android:drawableLeft="@drawable/ic_server"

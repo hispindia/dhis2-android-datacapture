@@ -29,6 +29,8 @@
         android:layout_centerHorizontal="true"
         android:drawableLeft="@drawable/ic_server"
         android:hint="@string/server_url"
+        android:text="@string/server_url_up"
+        android:enabled="false"
         android:inputType="textUri"
         app:font="@string/regular_font_name" />
 

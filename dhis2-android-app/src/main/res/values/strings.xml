@@ -75,6 +75,7 @@
     <string name="username">Username</string>
     <string name="password">Password</string>
     <string name="server_url">Enter server URL</string>
+    <string name="server_url_up">https://uphmis.hispindia.org/uphmis</string>
 
     <!-- String resources for aggregate report fragment -->
     <string name="sync">Sync</string>
