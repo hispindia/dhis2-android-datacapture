@@ -47,6 +47,8 @@ import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
+import com.facebook.stetho.Stetho;
+
 import org.dhis2.mobile.R;
 import org.dhis2.mobile.WorkService;
 import org.dhis2.mobile.network.HTTPClient;
@@ -116,6 +118,8 @@ public class LoginActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        //@Sou_ stetho initialization
+        Stetho.initializeWithDefaults(this);
         setContentView(R.layout.activity_login);
         mLoginActivity = this;
         mDhis2Logo = (ImageView) findViewById(R.id.dhis2_logo);
