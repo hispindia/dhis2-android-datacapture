@@ -39,6 +39,8 @@ dependencies {
     compile 'com.android.support:design:25.2.0'
     compile 'com.google.code.gson:gson:2.7'
     compile 'joda-time:joda-time:2.6'
+//@Sou_stetho
+    compile 'com.facebook.stetho:stetho:1.5.1'
     /// / Java test dependencies
     testCompile "junit:junit:4.12"
     compile('com.crashlytics.sdk.android:crashlytics:2.9.1@aar') {
