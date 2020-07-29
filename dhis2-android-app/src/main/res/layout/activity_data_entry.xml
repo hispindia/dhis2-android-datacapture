@@ -8,20 +8,27 @@
     <android.support.v7.widget.Toolbar
         android:id="@+id/toolbar"
         android:layout_width="match_parent"
-        android:layout_height="?attr/actionBarSize"
+        android:layout_height="70dp"
         android:background="?attr/colorPrimary"
         android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
         app:popupTheme="@style/ThemeOverlay.AppCompat.Light">
 
+        <!--@Sou fix for scroll in option-->
         <android.support.v7.widget.AppCompatSpinner
             style="@style/Widget.AppCompat.Spinner.DropDown.ActionBar"
             android:id="@+id/spinner_drop_down"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            app:popupTheme="@style/ThemeOverlay.AppCompat.Light" />
+             />
 
     </android.support.v7.widget.Toolbar>
-
+<!--    <TextView-->
+<!--        android:id="@+id/disabled_fields"-->
+<!--        android:layout_width="match_parent"-->
+<!--        android:textColor="@color/red"-->
+<!--        android:visibility="visible"-->
+<!--        android:layout_height="wrap_content"-->
+<!--        android:text="" />-->
     <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
@@ -30,6 +37,32 @@
         <include layout="@layout/listview" />
 
         <include layout="@layout/progress_bar_label" />
+
+
     </FrameLayout>
+    <RelativeLayout
+        android:id="@+id/relativeLayout1"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:background="?attr/colorPrimary" >
+
+        <ImageButton
+            android:id="@+id/swipe_button_left"
+            android:layout_width="50dp"
+            app:srcCompat="@drawable/back_button"
+            android:layout_height="50dp"
+            android:layout_alignParentLeft="true"
+            android:layout_marginLeft="6dp"
+            />
+
+        <ImageButton
+            android:id="@+id/swipe_button"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            app:srcCompat="@drawable/next_button"
+            android:text="@string/next_button"
+            android:layout_alignParentRight="true"/>
+
+    </RelativeLayout>
 
 </LinearLayout>

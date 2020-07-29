@@ -1,33 +1,50 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="org.dhis2.mobile">
+    package="org.dhis2.mobile_uphmis">
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
 
     <application
         android:allowBackup="false"
-        android:icon="@drawable/ic_launcher"
+        android:usesCleartextTraffic="true"
+        android:icon="@drawable/up_logo"
         android:label="@string/app_name"
         android:theme="@style/AppTheme.Base">
         <service
-            android:name=".WorkService"
+            android:name="org.dhis2.mobile_uphmis.WorkService"
             android:exported="false" />
 
         <activity
-            android:name=".ui.activities.LauncherActivity"
+            android:name="org.dhis2.mobile_uphmis.ui.activities.LauncherActivity"
             android:noHistory="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".ui.activities.LoginActivity" />
+
+        <activity android:name="org.dhis2.mobile_uphmis.ui.activities.LoginActivity" />
         <activity
-            android:name=".ui.activities.MenuActivity"
+            android:name="org.dhis2.mobile_uphmis.ui.activities.MenuActivity"
+            android:windowSoftInputMode="adjustPan" />
+
+        <activity
+            android:name="org.dhis2.mobile_uphmis.ui.fragments.report_analysis"
+            android:windowSoftInputMode="adjustPan" />
+
+        <activity
+            android:name="org.dhis2.mobile_uphmis.ui.fragments.report_analysis_offline"
             android:windowSoftInputMode="adjustPan" />
         <activity
-            android:name=".ui.activities.DataEntryActivity"
+            android:name="org.dhis2.mobile_uphmis.ui.fragments.report_analysis_offline_data"
+            android:windowSoftInputMode="adjustPan" />
+        <activity
+            android:name="org.dhis2.mobile_uphmis.ui.activities.DataEntryActivity"
+            android:windowSoftInputMode="adjustPan"
+            android:configChanges="keyboardHidden|orientation"/>
+        <activity
+            android:name="org.dhis2.mobile_uphmis.ui.fragments.AggregateReportFragment"
             android:windowSoftInputMode="adjustPan" />
         <meta-data
             android:name="io.fabric.ApiKey"

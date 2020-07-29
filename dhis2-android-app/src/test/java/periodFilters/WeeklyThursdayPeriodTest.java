@@ -4,8 +4,7 @@ package periodFilters;
 import static junit.framework.Assert.assertFalse;
 import static junit.framework.Assert.assertTrue;
 
-import org.dhis2.mobile.utils.date.filters.WeeklySundayPeriodFilter;
-import org.dhis2.mobile.utils.date.filters.WeeklyThursdayPeriodFilter;
+import org.dhis2.mobile_uphmis.utils.date.filters.WeeklyThursdayPeriodFilter;
 import org.junit.Test;
 
 public class WeeklyThursdayPeriodTest {

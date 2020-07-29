@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-
-    <string name="app_name">DHIS2 Data Capture</string>
+    <string name="app_name">UPHMIS</string>
     <string name="title_activity_launcher">LauncherActivity</string>
     <string name="title_activity_login">LoginActivity</string>
     <string name="desc">stub image</string>
@@ -15,14 +14,21 @@
     <string name="login_dialog_message">Please wait</string>
     <string name="downloading_forms">Downloading forms</string>
     <string name="downloading_values">Downloading values</string>
+    <string name="syncing_data">Sending Data</string>
 
     <!-- data entry -->
     <string name="yes_button">Yes</string>
     <string name="no_button">No</string>
     <string name="none_button">No value</string>
 
+    <string name="yes_button_adequate">Adequate</string>
+    <string name="no_button_nonade">Inadequate</string>
+    <string name="none_button_novalue">No value</string>
+
+
     <string name="enter_number">Enter number</string>
     <string name="enter_integer">Enter integer</string>
+    <string name="enter_integer_d">Disabled</string>
     <string name="enter_integer_positive">Enter positive integer</string>
     <string name="enter_integer_positive_or_zero">Enter zero or positive integer</string>
     <string name="enter_integer_negative">Enter negative integer</string>
@@ -58,6 +64,7 @@
     <!-- toasts and notifications -->
     <string name="check_connection">Please check connection</string>
     <string name="wrong_url">Wrong URL</string>
+    <string name="old_version">You might be using an outdated version of the app please upgrade to latest version</string>
     <string name="wrong_username_password">Wrong password or username</string>
     <string name="try_again">Please try again</string>
     <string name="bad_response">Bad server response</string>
@@ -75,7 +82,15 @@
     <string name="username">Username</string>
     <string name="password">Password</string>
     <string name="server_url">Enter server URL</string>
-    <string name="server_url_up">https://uphmis.hispindia.org/uphmis</string>
+<!--    <string name="server_url_up">http://192.168.137.1:8080/dhis</string>-->a
+<!--    <string name="server_ayudhya_url_up">https://uphmis.hispindia.org/uphmis</string>-->
+<!--    <string name="server_url_up">https://uphmis.in/uphmis</string>-->
+    <string name="server_url_up">https://up.dhis2.org/uphmis</string>
+<!--    <string name="server_url_up">https://ln1.hispindia.org/uphmis230</string>-->
+<!--    <string name="server_url_up">http://172.16.13.51:8080/dhis</string>-->
+<!--    <string name="server_url_up">http://164.52.194.73/uphmis</string>-->
+<!--    <string name="server_url_up">http://192.168.137.1:8080/dhis</string>-->
+<!--    <string name="server_url_up">http://192.168.0.100:8080/dhis</string>-->
 
     <!-- String resources for aggregate report fragment -->
     <string name="sync">Sync</string>
@@ -97,8 +112,10 @@
     <string name="download_forms">Download forms</string>
 
     <!-- menu items -->
-    <string name="aggregate_reporting">Aggregate Report</string>
+    <string name="aggregate_reporting">Data Capture</string>
     <string name="profile">Profile</string>
+    <string name="report_analysis">Tabular Report</string>
+    <string name="report_analysis_offline">Offline Reports</string>
     <string name="sync_logs">Sync logs</string>
 
     <!-- Basic strings -->
@@ -114,7 +131,6 @@
     <string name="log_message_offline_report">" offline report."</string>
     <string name="network_error">Network error</string>
     <string name="server_error">Server error</string>
-
     <!-- last commit -->
     <string name="about_this_app">About this app</string>
     <string name="app_version">App version: %s</string>
@@ -124,10 +140,16 @@
 
     <string name="dialog_content_logout_confirmation">"If you exit the system, all the not sent data will be deleted. Do you still want to exit?"</string>
     <string name="value_not_supported">Value-type not supported</string>
-
     <string name="dialog_exit_survey_title">Confirm exit</string>
-    <string name="dialog_exit_survey_message">"You have data that hasn't yet been saved. If you continue and exit this report, all the data not saved will be lost. Do you want to continue?"</string>
+    <string name="delete_offline">Delete Offline Reports</string>
+    <string name="delete_offline_confirm">"All offline reports will be deleted from the device are you sure you want to proceed?"</string>
     <string name="dialog_exit_survey_yes">Yes</string>
+    <string name="dialog_validation">Correct Above Errors</string>
+    <string name="title_validation">"Validation Results:"</string>
+    <string name="dialog_outlier">Correct Above Outlier</string>
+    <string name="minimum_v">Minimum: </string>
+    <string name="maximum_v">and Maximum: </string>
+    <string name="minax_title">Min Max Break:</string>
     <string name="dialog_exit_survey_no">No</string>
     <string name="save_data_set">save dataset</string>
     <string name="dialog_period_not_supported">"Period type not supported: %s"</string>
@@ -136,4 +158,26 @@
     <string name="dataset_readonly_by_expiry_days">"Data set has expired"</string>
     <string name="logged_in">"Logged in as: "</string>
     <string name="at_server">"At server: "</string>
+    <string-array name="language_arrays">
+        <item>Hindi</item>
+        <item>English</item>
+    </string-array>
+    <string name="language_prompt">Select Language</string>
+    <string name="offline_msg">The filled data stored offline, please make sure to upload on online portal by connecting / checking internet</string>
+    <string name="online_msg">The filled data was uploaded successfully on the online portal</string>
+    <!--Tabular Report-->
+    <string name="id">Serial No:</string>
+    <string name="name">DataElement</string>
+    <string name="report_heading">Offline Overall Report</string>
+    <string name="price">Value</string>
+    <string name="create_date">Create Date</string>
+    <string name="offline_reports">All Offline Reports</string>
+    <string name="offline_reports_delete">Delete All Offline Reports</string>
+    <string name="offline_reports_delete_msg">Offline reports deleted Successfully</string>
+    <string name="previous_button">prev</string>
+    <string name="previous_button_2">All Fields</string>
+    <string name="previous_button_22">Normal View</string>
+    <string name="next_button">next</string>
+    <string name="dialog_exit_survey_message">You have data that has not yet been saved. If you continue and exit this report, all unsaved data will be lost. Do you want to continue?</string>
+    <string name="adataset_message">Data Entry not allowed for this DataSet</string>
 </resources>

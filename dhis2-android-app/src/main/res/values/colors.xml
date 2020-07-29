@@ -1,9 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <color name="white">#FFFFFF</color>
+    <color name="red">#FF0000</color>
     <color name="light_grey">#e5e5e5</color>
     <color name="dark_navy_blue">#1d5288</color>
     <color name="light_blue">#67b0f9</color>
+    <color name="blue">#add8e6</color>
+    <color name="black">#000000</color>
     <color name="actionbar_blue">#1f70c3</color>
 
     <color name="color_primary_default">@color/actionbar_blue</color>

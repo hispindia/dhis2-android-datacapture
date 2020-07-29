@@ -9,7 +9,7 @@
 
     <include layout="@layout/listview_row_label" />
 
-    <org.dhis2.mobile.ui.views.FontEditText
+    <org.dhis2.mobile_uphmis.ui.views.FontEditText
         android:id="@+id/edit_text_row"
         style="@style/ListViewEditTextStyle"
         android:hint="@string/enter_text"

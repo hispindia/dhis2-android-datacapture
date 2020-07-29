@@ -24,7 +24,7 @@
             android:paddingLeft="8dp"
             android:paddingRight="8dp">
 
-            <org.dhis2.mobile.ui.views.FontTextView
+            <org.dhis2.mobile_uphmis.ui.views.FontTextView
                 android:id="@+id/log_content"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
@@ -33,7 +33,7 @@
         </LinearLayout>
     </android.support.v4.widget.NestedScrollView>
 
-    <org.dhis2.mobile.ui.views.FontButton
+    <org.dhis2.mobile_uphmis.ui.views.FontButton
         android:id="@+id/delete_and_log_out_button"
         android:layout_width="match_parent"
         android:layout_height="40dp"

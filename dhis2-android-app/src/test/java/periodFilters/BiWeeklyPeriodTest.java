@@ -1,7 +1,7 @@
 package periodFilters;
 
 
-import org.dhis2.mobile.utils.date.filters.BiWeeklyPeriodFilter;
+import org.dhis2.mobile_uphmis.utils.date.filters.BiWeeklyPeriodFilter;
 import org.junit.Test;
 
 import static junit.framework.Assert.assertFalse;

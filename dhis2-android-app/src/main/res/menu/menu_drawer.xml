@@ -44,16 +44,22 @@
             android:title="@string/profile" />
 
         <item
+            android:id="@+id/drawer_item_report_offline"
+            android:icon="@drawable/ic_username"
+            android:orderInCategory="120"
+            android:title="@string/report_analysis_offline" />
+
+        <item
             android:id="@+id/drawer_item_sync_logs"
             android:icon="@drawable/ic_notification"
             android:orderInCategory="130"
             android:title="@string/sync_logs" />
 
-        <item
-            android:id="@+id/drawer_item_about"
-            android:icon="@drawable/ic_notification"
-            android:orderInCategory="140"
-            android:title="@string/about_this_app" />
+<!--        <item-->
+<!--            android:id="@+id/drawer_item_about"-->
+<!--            android:icon="@drawable/ic_notification"-->
+<!--            android:orderInCategory="140"-->
+<!--            android:title="@string/about_this_app" />-->
 
         <item
             android:id="@+id/drawer_item_logout"

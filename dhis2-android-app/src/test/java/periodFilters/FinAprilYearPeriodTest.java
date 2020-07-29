@@ -4,7 +4,7 @@ package periodFilters;
 import static junit.framework.Assert.assertFalse;
 import static junit.framework.Assert.assertTrue;
 
-import org.dhis2.mobile.utils.date.filters.FinAprilYearPeriodFilter;
+import org.dhis2.mobile_uphmis.utils.date.filters.FinAprilYearPeriodFilter;
 import org.junit.Test;
 
 public class FinAprilYearPeriodTest {

@@ -14,9 +14,11 @@
         android:layout_height="wrap_content"
         android:orientation="horizontal" >
 
-        <org.dhis2.mobile.ui.views.FontAutoCompleteTextView
+        <!--@Sou disable option field-->
+        <org.dhis2.mobile_uphmis.ui.views.FontAutoCompleteTextView
             android:id="@+id/chooseOption"
             android:layout_width="0dp"
+            android:editable="false"
             android:layout_height="wrap_content"
             android:layout_weight="0.95"
             android:background="@drawable/editbox_background"
