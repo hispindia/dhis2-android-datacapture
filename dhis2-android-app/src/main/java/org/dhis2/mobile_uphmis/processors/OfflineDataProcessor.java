@@ -25,12 +25,13 @@
  * HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
  * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*/
+ */
 
 package org.dhis2.mobile_uphmis.processors;
 
 import android.content.Context;
 import android.content.Intent;
+import android.util.Log;
 
 import com.google.gson.Gson;
 
@@ -90,6 +91,8 @@ public class OfflineDataProcessor {
         if (!directory.exists()) {
             return;
         }
+        String parent_dis= PrefUtils.getDstrictParent(context);
+
         File[] reportFiles = directory.listFiles();
         String url = PrefUtils.getServerURL(context) + URLConstants.DATASET_UPLOAD_URL;
         String creds = PrefUtils.getCredentials(context);
@@ -110,7 +113,10 @@ public class OfflineDataProcessor {
                 }catch (JSONException e) {
                     e.printStackTrace();
                 }
-                Response resp = HTTPClient.post(url, creds, report);
+                //@Sou disable offline sync:
+                //@Sou temp disable the offline sync:
+                Response resp = HTTPClient.postdv(url, creds, report,parent_dis);
+                Log.d("offline--","sync");
                 // If upload was successful, notify user and delete offline
                 // report
                 // Getting label of period and dataset

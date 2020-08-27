@@ -25,9 +25,9 @@
  * HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
  * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*/
+ */
 
-package org.dhis2.mobile.processors;
+package org.dhis2.mobile_uphmis.processors;
 
 import android.content.Context;
 import android.content.Intent;
@@ -35,32 +35,109 @@ import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 import android.webkit.URLUtil;
 
-import org.dhis2.mobile.WorkService;
-import org.dhis2.mobile.network.HTTPClient;
-import org.dhis2.mobile.network.Response;
-import org.dhis2.mobile.network.URLConstants;
-import org.dhis2.mobile.ui.activities.LoginActivity;
-import org.dhis2.mobile.utils.PrefUtils;
-import org.dhis2.mobile.utils.TextFileUtils;
+import org.json.JSONArray;
+import org.json.JSONObject;
+import org.json.JSONException;
+import org.dhis2.mobile_uphmis.network.HTTPClient;
+import org.dhis2.mobile_uphmis.network.Response;
+import org.dhis2.mobile_uphmis.network.URLConstants;
+import org.dhis2.mobile_uphmis.ui.activities.LoginActivity;
+import org.dhis2.mobile_uphmis.utils.PrefUtils;
+import org.dhis2.mobile_uphmis.utils.TextFileUtils;
 
 import java.net.HttpURLConnection;
 
 public class LoginProcessor {
     private static final String HTTP = "http://";
     private static final String HTTPS = "https://";
+    private static String user_lang = null;
+    private static String minimum = null;
+    private static String maximum = null;
+    private static String ou_uid = null;
+    private static String dis_org = null;
+    private static String parent_dis = "";
+    private static JSONObject json_parent = null;
 
 
     public static void loginUser(Context context, String server,
-                                 String creds, String username) {
-
+                                 String creds, String username, String locale) {
+        parent_dis = PrefUtils.getDstrictParent(context);
         if (context == null || server == null
                 || creds == null || username == null) {
             Log.i(LoginActivity.TAG, "Login failed");
             return;
         }
-        
+//        String ou=TextFileUtils.readTextFile(context,
+//                TextFileUtils.Directory.ROOT,
+//                TextFileUtils.FileNames.ORG_UNITS_WITH_DATASETS);
         String url = prepareUrl(server, creds);
         Response resp = tryToLogIn(url, creds);
+        String change_locale = username + "&value=";
+        if (locale.equals("Hindi")) {
+            change_locale = change_locale + "hi";
+        } else {
+            change_locale = change_locale + "en";
+        }
+
+        //@Sou change user locale using post api
+        Response resp_user_locale = updateLocale(url, creds, change_locale);
+        //@Sou changes to save user-locale
+        Response resp_user = userSettings(url, creds);
+        Response ou_me = ou_me(url, creds);
+        Response ou_parent = parent_sql(url, creds);
+        String locale_user = resp_user.getBody();
+        String ou_assigned = ou_me.getBody();
+        String dis_assigned = ou_parent.getBody();
+
+        try {
+            json_parent = new JSONObject(dis_assigned);
+            JSONArray arr_par = json_parent.getJSONArray("sqlViews");
+            for (int i = 0; i < arr_par.length(); i++) {
+                JSONObject o = arr_par.getJSONObject(i);
+                dis_org = o.getString("id");
+                Log.d("id------", dis_org);
+            }
+        } catch (
+                JSONException e) {
+            e.printStackTrace();
+        }
+
+
+        if (ou_assigned.length() > 1) {
+            ou_uid = ou_assigned.substring(29, 40);
+        }
+        if (dis_assigned.length() > 1) {
+            Log.d("dis_assigned", dis_assigned);
+            ou_uid = ou_assigned.substring(29, 40);
+        }
+
+        Response min_values = minvalues(url, creds);
+        Response max_values = maxvalues(url, creds);
+        try {
+            JSONObject object = new JSONObject(max_values.getBody());
+            maximum = object.toString();
+//                textView.setText(object.toString());
+        } catch (
+                JSONException e) {
+            e.printStackTrace();
+//                textView.setText(e.getMessage());
+        }
+        try {
+            JSONObject object1 = new JSONObject(min_values.getBody());
+
+            minimum = object1.toString();
+//                textView.setText(object.toString());
+        } catch (
+                JSONException e) {
+            e.printStackTrace();
+//                textView.setText(e.getMessage());QQssH9MWMn0&paging=false
+        }
+        if (locale_user != null) {
+            if (locale_user.length() > 18) {
+                user_lang = locale_user.substring(16, 18);
+            }
+
+        }
 
         // Checking validity of server URL
         if (!URLUtil.isValidUrl(url)) {
@@ -68,12 +145,18 @@ public class LoginProcessor {
             result.putExtra(Response.CODE, HttpURLConnection.HTTP_NOT_FOUND);
             LocalBroadcastManager.getInstance(context).sendBroadcast(result);
             return;
-        } 
-        
+        }
+
+
         // If credentials and address is correct,
         // user information will be saved to internal storage
         if (!HTTPClient.isError(resp.getCode())) {
-            PrefUtils.initAppData(context, creds, username, url);
+            PrefUtils.initAppData(context, creds, username, url, user_lang, minimum, maximum, ou_uid, dis_org);
+            TextFileUtils.writeTextFile(context, TextFileUtils.Directory.ROOT,
+                    TextFileUtils.FileNames.ACCOUNT_INFO, resp.getBody());
+        }
+        if (!HTTPClient.isError(resp.getCode())) {
+            PrefUtils.initAppData(context, creds, username, url, user_lang, minimum, maximum, ou_uid, dis_org);
             TextFileUtils.writeTextFile(context, TextFileUtils.Directory.ROOT,
                     TextFileUtils.FileNames.ACCOUNT_INFO, resp.getBody());
         }
@@ -81,7 +164,8 @@ public class LoginProcessor {
         // If credentials and address is correct,
         // user information will be saved to internal storage
         if (!HTTPClient.isError(resp.getCode()) && !ServerInfoProcessor.pullServerInfo(context, server, creds)) {
-            PrefUtils.initAppData(context, creds, username, url);
+
+            PrefUtils.initAppData(context, creds, username, url, user_lang, minimum, maximum, ou_uid, dis_org);
             TextFileUtils.writeTextFile(context, TextFileUtils.Directory.ROOT,
                     TextFileUtils.FileNames.ACCOUNT_INFO, resp.getBody());
         }
@@ -90,7 +174,10 @@ public class LoginProcessor {
         // through Broadcast android API
         Intent result = new Intent(LoginActivity.TAG);
         result.putExtra(Response.CODE, resp.getCode());
-        LocalBroadcastManager.getInstance(context).sendBroadcast(result);
+        LocalBroadcastManager.getInstance(context).
+
+                sendBroadcast(result);
+
     }
 
     private static void gerServerVersion() {
@@ -112,6 +199,40 @@ public class LoginProcessor {
 
     private static Response tryToLogIn(String server, String creds) {
         String url = server + URLConstants.API_USER_ACCOUNT_URL;
-        return HTTPClient.get(url, creds);
+        return HTTPClient.get(url, creds, parent_dis);
+    }
+
+    //@Sou changes to save user-locale
+    private static Response userSettings(String server, String creds) {
+        String url = server + URLConstants.API_USER_SETTINGS;
+        return HTTPClient.get(url, creds, parent_dis);
+    }
+
+    private static Response updateLocale(String server, String creds, String locale) {
+        String url = server + URLConstants.API_UPDATE_LOCALE + locale;
+        return HTTPClient.post(url, creds, locale);
+    }
+
+    //@Sou changes to save ou-minmax
+    private static Response minvalues(String server, String creds) {
+//        String url = server + URLConstants.API_MIN+ ou_uid;
+        String url = server + URLConstants.API_MIN_DEFAULT + "?filter=source.id:eq:" + ou_uid + "&paging=false";
+        return HTTPClient.get(url, creds, parent_dis);
+    }
+
+    private static Response maxvalues(String server, String creds) {
+        String url = server + URLConstants.API_MIN_DEFAULT + "?filter=source.id:eq:" + ou_uid + "&paging=false";
+        return HTTPClient.get(url, creds, parent_dis);
+    }
+
+    //@Sou changes to save ou-me
+    private static Response ou_me(String server, String creds) {
+        String url = server + URLConstants.API_ME_ORG;
+        return HTTPClient.get(url, creds, parent_dis);
+    }
+
+    private static Response parent_sql(String server, String creds) {
+        String url = server + URLConstants.PARENT_SQLVIEW;
+        return HTTPClient.get(url, creds, parent_dis);
     }
 }

@@ -45,7 +45,7 @@ public class URLConstants {
 	public static final String OPTION_SET_PARAM = "?fields=id,name,created,lastUpdated," +
 			"externalAccess,version,options[id,name,code,created,lastUpdated]";
 	public static final String OPTION_SET_URL = "api/optionSets";
-
+	public static final String PARENT_SQLVIEW = "api/sqlViews.json?filter=displayName:eq:dis_parent";
 	public static final String DATASETS_URL = "api/me/assignedDataSets";
 	public static final String DATA_ORGUNIT = "api/organisationUnits/";
 	public static final String DATASET_UPLOAD_URL = "api/dataValueSets?preheatCache=true";

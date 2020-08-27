@@ -25,7 +25,7 @@
  * HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
  * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*/
+ */
 
 package org.dhis2.mobile_uphmis.utils;
 
@@ -34,20 +34,21 @@ import android.content.SharedPreferences.Editor;
 import android.util.Log;
 
 public class PrefUtils {
-	private static final String APP_DATA = "APP_DATA";
+    private static final String APP_DATA = "APP_DATA";
     private static final String USER_DATA = "USER_DATA";
     private static final String SERVER_DATA = "SERVER_DATA";
     private static final String RESOURCE_STATE = "RESOURCE_STATE";
-	private static final String OFFLINE_REPORTS_INFO = "OFFLINE_REPORTS_INFO";
+    private static final String OFFLINE_REPORTS_INFO = "OFFLINE_REPORTS_INFO";
 
-	private static final String FORMS_DOWNLOAD_STATE = "areFormsDownloaded";
-	private static final String CREDENTIALS = "credentials";
-	private static final String LOGGED_IN = "loggedIn";
-	private static final String ACCOUNT_NEEDS_UPDATE = "accountNeedsUpdate";
-	private static final String URL = "url";
+    private static final String FORMS_DOWNLOAD_STATE = "areFormsDownloaded";
+    private static final String CREDENTIALS = "credentials";
+    private static final String LOGGED_IN = "loggedIn";
+    private static final String ACCOUNT_NEEDS_UPDATE = "accountNeedsUpdate";
+    private static final String URL = "url";
     private static final String USER_NAME = "userName";
     private static final String LOCALE = "locale";
     private static final String ORG = "orgid";
+    private static final String DSTRICT_PARENT = "dis_org";
     private static final String SERVER_VERSION = "serverVersion";
     private static final String USER_LOCALE = "hi";
 
@@ -57,7 +58,7 @@ public class PrefUtils {
     private static final String SCROLL = "scroll";
 
 
-	private PrefUtils() { }
+    private PrefUtils() { }
 
     public static enum Resources {
         DATASETS,
@@ -72,41 +73,42 @@ public class PrefUtils {
         ATTEMPT_TO_REFRESH_IS_MADE
     }
     //@Sou changes to save user-locale
-	public static void initAppData(Context context, String creds, String username, String url, String locale,String minimum,String maximum,String org) {
-		Editor userData = context.getSharedPreferences(USER_DATA, Context.MODE_PRIVATE).edit();
-		userData.putString(CREDENTIALS, creds);
-		userData.putString(USER_NAME, username);
-		userData.putString(URL, url);
-		userData.putString(LOCALE, locale);
-		userData.putString(MINMAX_MINIMUM, minimum);
-		userData.putString(MINMAX_MAXIMUM, maximum);
-		userData.putString(ORG, org);
-		userData.commit();
+    public static void initAppData(Context context, String creds, String username, String url, String locale,String minimum,String maximum,String org,String dis_org) {
+        Editor userData = context.getSharedPreferences(USER_DATA, Context.MODE_PRIVATE).edit();
+        userData.putString(CREDENTIALS, creds);
+        userData.putString(USER_NAME, username);
+        userData.putString(URL, url);
+        userData.putString(LOCALE, locale);
+        userData.putString(MINMAX_MINIMUM, minimum);
+        userData.putString(MINMAX_MAXIMUM, maximum);
+        userData.putString(ORG, org);
+        userData.putString(DSTRICT_PARENT, dis_org);
+        userData.commit();
 
 
-		Editor appData = context.getSharedPreferences(APP_DATA, Context.MODE_PRIVATE).edit();
-		appData.putBoolean(LOGGED_IN, true);
-		appData.putBoolean(FORMS_DOWNLOAD_STATE, false);
-		appData.putBoolean(ACCOUNT_NEEDS_UPDATE, false);
-		appData.commit();
+        Editor appData = context.getSharedPreferences(APP_DATA, Context.MODE_PRIVATE).edit();
+        appData.putBoolean(LOGGED_IN, true);
+        appData.putBoolean(FORMS_DOWNLOAD_STATE, false);
+        appData.putBoolean(ACCOUNT_NEEDS_UPDATE, false);
+        appData.commit();
 
-		// initialize shared preference for future work
-		context.getSharedPreferences(OFFLINE_REPORTS_INFO, Context.MODE_PRIVATE).edit().commit();
-	}
+        // initialize shared preference for future work
+        context.getSharedPreferences(OFFLINE_REPORTS_INFO, Context.MODE_PRIVATE).edit().commit();
+    }
 
-	public static void initScrollData(Context context, String scroll) {
-		Editor userData = context.getSharedPreferences(USER_DATA, Context.MODE_PRIVATE).edit();
-		userData.putString(SCROLL, scroll);
-		userData.commit();
+    public static void initScrollData(Context context, String scroll) {
+        Editor userData = context.getSharedPreferences(USER_DATA, Context.MODE_PRIVATE).edit();
+        userData.putString(SCROLL, scroll);
+        userData.commit();
 
-		Editor appData = context.getSharedPreferences(APP_DATA, Context.MODE_PRIVATE).edit();
-		appData.putBoolean(LOGGED_IN, true);
-		appData.putBoolean(FORMS_DOWNLOAD_STATE, false);
-		appData.putBoolean(ACCOUNT_NEEDS_UPDATE, false);
-		appData.commit();
-		// initialize shared preference for future work
-		context.getSharedPreferences(OFFLINE_REPORTS_INFO, Context.MODE_PRIVATE).edit().commit();
-	}
+        Editor appData = context.getSharedPreferences(APP_DATA, Context.MODE_PRIVATE).edit();
+        appData.putBoolean(LOGGED_IN, true);
+        appData.putBoolean(FORMS_DOWNLOAD_STATE, false);
+        appData.putBoolean(ACCOUNT_NEEDS_UPDATE, false);
+        appData.commit();
+        // initialize shared preference for future work
+        context.getSharedPreferences(OFFLINE_REPORTS_INFO, Context.MODE_PRIVATE).edit().commit();
+    }
 
 
     public static void initServerData(Context context, String serverVersion) {
@@ -117,24 +119,30 @@ public class PrefUtils {
     }
 
 
-	public static boolean isUserLoggedIn(Context context) {
-		return context.getSharedPreferences(APP_DATA, Context.MODE_PRIVATE).getBoolean(LOGGED_IN, false);
-	}
+    public static boolean isUserLoggedIn(Context context) {
+        return context.getSharedPreferences(APP_DATA, Context.MODE_PRIVATE).getBoolean(LOGGED_IN, false);
+    }
 
-	public static String getCredentials(Context context) {
-		return context.getSharedPreferences(USER_DATA, Context.MODE_PRIVATE).getString(CREDENTIALS, null);
-	}
+    public static String getCredentials(Context context) {
+        return context.getSharedPreferences(USER_DATA, Context.MODE_PRIVATE).getString(CREDENTIALS, null);
+    }
 
-	public static String getServerURL(Context context) {
-		return context.getSharedPreferences(USER_DATA, Context.MODE_PRIVATE).getString(URL, null);
-	}
-	
-	public static String getUserName(Context context) {
-		return context.getSharedPreferences(USER_DATA, Context.MODE_PRIVATE).getString(USER_NAME, null);
-	}
+
+    public static String getServerURL(Context context) {
+        return context.getSharedPreferences(USER_DATA, Context.MODE_PRIVATE).getString(URL, null);
+    }
+
+    public static String getUserName(Context context) {
+        return context.getSharedPreferences(USER_DATA, Context.MODE_PRIVATE).getString(USER_NAME, null);
+    }
+
     //@Sou get user_locale
     public static String getLocale(Context context) {
         return context.getSharedPreferences(USER_DATA, Context.MODE_PRIVATE).getString(LOCALE, null);
+    }
+
+    public static String getDstrictParent(Context context) {
+        return context.getSharedPreferences(USER_DATA, Context.MODE_PRIVATE).getString(DSTRICT_PARENT, null);
     }
     //@Sou get scroll
     public static String getScroll(Context context) {
@@ -159,13 +167,13 @@ public class PrefUtils {
         return context.getSharedPreferences(SERVER_DATA, Context.MODE_PRIVATE).getString(SERVER_VERSION, null);
     }
 
-	public static void eraseData(Context context) {
-		context.getSharedPreferences(USER_DATA, Context.MODE_PRIVATE).edit().clear().commit();
-		context.getSharedPreferences(APP_DATA, Context.MODE_PRIVATE).edit().clear().commit();
-		context.getSharedPreferences(OFFLINE_REPORTS_INFO, Context.MODE_PRIVATE).edit().clear().commit();
+    public static void eraseData(Context context) {
+        context.getSharedPreferences(USER_DATA, Context.MODE_PRIVATE).edit().clear().commit();
+        context.getSharedPreferences(APP_DATA, Context.MODE_PRIVATE).edit().clear().commit();
+        context.getSharedPreferences(OFFLINE_REPORTS_INFO, Context.MODE_PRIVATE).edit().clear().commit();
         context.getSharedPreferences(SERVER_DATA, Context.MODE_PRIVATE).edit().clear().commit();
         context.getSharedPreferences(RESOURCE_STATE, Context.MODE_PRIVATE).edit().clear().commit();
-	}
+    }
 
     public static void setResourceState(Context context, Resources res, State state) {
         Editor editor = context.getSharedPreferences(RESOURCE_STATE, Context.MODE_PRIVATE).edit();
