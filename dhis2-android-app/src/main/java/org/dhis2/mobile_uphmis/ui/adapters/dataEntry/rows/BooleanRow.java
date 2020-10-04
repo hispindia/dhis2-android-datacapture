@@ -64,14 +64,14 @@ public class BooleanRow implements Row {
             
             CompoundButton tButton = (CompoundButton) rootView.findViewById(R.id.true_button);
             CompoundButton fButton = (CompoundButton) rootView.findViewById(R.id.false_button);
-            CompoundButton nButton = (CompoundButton) rootView.findViewById(R.id.none_button);
+//            CompoundButton nButton = (CompoundButton) rootView.findViewById(R.id.none_button);
             
             tButton.setOnCheckedChangeListener(tListener);
             fButton.setOnCheckedChangeListener(fListener);
-            nButton.setOnCheckedChangeListener(nListener);
+//            nButton.setOnCheckedChangeListener(nListener);
             
             holder = new BooleanRowHolder(label, tListener, fListener, 
-                    nListener, tButton, fButton, nButton);
+                    nListener, tButton, fButton);
             
             rootView.setTag(holder);
             view = rootView;
@@ -88,20 +88,20 @@ public class BooleanRow implements Row {
         
         holder.trueButton.setOnCheckedChangeListener(holder.trueButtonListener);
         holder.falseButton.setOnCheckedChangeListener(holder.falseButtonListener);
-        holder.noneButton.setOnCheckedChangeListener(holder.noneButtonListener);
+//        holder.noneButton.setOnCheckedChangeListener(holder.noneButtonListener);
         
         if (field.getValue().equals(Field.FALSE)) holder.falseButton.setChecked(true);
         else if (field.getValue().equals(Field.TRUE)) holder.trueButton.setChecked(true);
-        else if (field.getValue().equals(Field.EMPTY_FIELD)) holder.noneButton.setChecked(true);
+//        else if (field.getValue().equals(Field.EMPTY_FIELD)) holder.noneButton.setChecked(true);
 
         if(readOnly){
             holder.trueButton.setEnabled(false);
             holder.falseButton.setEnabled(false);
-            holder.noneButton.setEnabled(false);
+//            holder.noneButton.setEnabled(false);
         } else {
             holder.trueButton.setEnabled(true);
             holder.falseButton.setEnabled(true);
-            holder.noneButton.setEnabled(true);
+//            holder.noneButton.setEnabled(true);
         }
         return view;
     }
@@ -121,7 +121,7 @@ public class BooleanRow implements Row {
         
         final CompoundButton trueButton;
         final CompoundButton falseButton;
-        final CompoundButton noneButton;
+//        final CompoundButton noneButton;
         
         final TrueButtonListener  trueButtonListener;
         final FalseButtonListener falseButtonListener;
@@ -129,7 +129,7 @@ public class BooleanRow implements Row {
         
         BooleanRowHolder(TextView tLabel, TrueButtonListener tListener,
                 FalseButtonListener fListener, NoneButtonListener nListener,
-                CompoundButton tButton, CompoundButton fButton, CompoundButton nButton) {
+                CompoundButton tButton, CompoundButton fButton) {
             
             textLabel = tLabel;
             
@@ -139,7 +139,7 @@ public class BooleanRow implements Row {
             
             trueButton = tButton;
             falseButton = fButton;
-            noneButton = nButton;
+//            noneButton = nButton;
         }
     }
     

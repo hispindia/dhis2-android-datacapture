@@ -22,13 +22,13 @@ import java.util.Locale;
 public class BaseActivity extends AppCompatActivity {
     private Typeface mCustomTypeFace;
     private NetworkStateReceiver mNetworkStateReceiver;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         mCustomTypeFace = getTypeFace();
-        String lang= PrefUtils.getLocale(getBaseContext());
-        if (lang!=null&&lang.equals("hi"))
-        {
+        String lang = PrefUtils.getLocale(getBaseContext());
+        if (lang != null && lang.equals("hi")) {
             Locale locale = new Locale("hi");
             Locale.setDefault(locale);
             Configuration config = getBaseContext().getResources().getConfiguration();
@@ -76,7 +76,7 @@ public class BaseActivity extends AppCompatActivity {
     @Override
     protected void onPause() {
         super.onPause();
-        if(mNetworkStateReceiver!=null) {
+        if (mNetworkStateReceiver != null) {
             IntentFilter intentFilter = new IntentFilter();
             intentFilter.addAction(ConnectivityManager.CONNECTIVITY_ACTION);
             unregisterReceiver(mNetworkStateReceiver);

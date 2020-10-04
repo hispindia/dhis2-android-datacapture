@@ -25,7 +25,7 @@
  * HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
  * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*/
+ */
 
 package org.dhis2.mobile_uphmis.ui.activities;
 
@@ -35,6 +35,9 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.res.Configuration;
 import android.os.Bundle;
+import android.provider.ContactsContract;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AppCompatActivity;
 import android.text.Editable;
@@ -56,6 +59,7 @@ import org.dhis2.mobile_uphmis.WorkService;
 import org.dhis2.mobile_uphmis.network.HTTPClient;
 import org.dhis2.mobile_uphmis.network.NetworkUtils;
 import org.dhis2.mobile_uphmis.network.Response;
+import org.dhis2.mobile_uphmis.ui.fragments.AggregateReportFragment;
 import org.dhis2.mobile_uphmis.utils.PrefUtils;
 import org.dhis2.mobile_uphmis.utils.ToastManager;
 import org.dhis2.mobile_uphmis.utils.ViewUtils;
@@ -97,21 +101,21 @@ public class LoginActivity extends AppCompatActivity {
             // If not, user is notified with error message
             if (!HTTPClient.isError(code)) {
 
-                if(PrefUtils.getServerVersion(context)!=null && !PrefUtils.getServerVersion(context).equals("")) {
+                if (PrefUtils.getServerVersion(context) != null && !PrefUtils.getServerVersion(context).equals("")) {
 
                     // Prepare Intent and start service
-                    if(isFirstPull == null || !isFirstPull) {
+                    if (isFirstPull == null || !isFirstPull) {
                         intent = new Intent(mLoginActivity, WorkService.class);
                         intent.putExtra(WorkService.METHOD, WorkService.METHOD_FIRST_PULL_DATASETS);
                         mLoginActivity.startService(intent);
-                    }else {
+                    } else {
                         finish();
                         Intent menuActivity = new Intent(LoginActivity.this, MenuActivity.class);
                         startActivity(menuActivity);
                         overridePendingTransition(R.anim.activity_open_enter,
                                 R.anim.activity_open_exit);
                     }
-                }else{
+                } else {
                     hideProgress();
                     String message = context.getString(R.string.server_error);
                     showMessage(message);
@@ -128,9 +132,8 @@ public class LoginActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        String lang=PrefUtils.getLocale(getBaseContext());
-        if (lang!=null&&lang.equals("hi"))
-        {
+        String lang = PrefUtils.getLocale(getBaseContext());
+        if (lang != null && lang.equals("hi")) {
             Locale locale = new Locale("hi");
             Locale.setDefault(locale);
             Configuration config = getBaseContext().getResources().getConfiguration();
@@ -194,7 +197,7 @@ public class LoginActivity extends AppCompatActivity {
             boolean loginInProcess = savedInstanceState.getBoolean(TAG, false);
 
             if (loginInProcess) {
-                ViewUtils.hideAndDisableViews(mDhis2Logo, mnhmlogo,muplogo,mServerUrl, mUsername, mPassword, mlanguage,mLoginButton);
+                ViewUtils.hideAndDisableViews(mDhis2Logo, mnhmlogo, muplogo, mServerUrl, mUsername, mPassword, mlanguage, mLoginButton);
                 showProgress();
             }
         }
@@ -251,7 +254,7 @@ public class LoginActivity extends AppCompatActivity {
         String user = mUsername.getText().toString();
         String pass = mPassword.getText().toString();
         String pair = String.format("%s:%s", user, pass);
-        String language=String.valueOf(mlanguage.getSelectedItem());
+        String language = String.valueOf(mlanguage.getSelectedItem());
 //        String language=String.valueOf("test");
         if (NetworkUtils.checkConnection(LoginActivity.this)) {
             showProgress();
@@ -280,13 +283,13 @@ public class LoginActivity extends AppCompatActivity {
 
     private void showProgress() {
         ViewUtils.perfomOutAnimation(this, R.anim.out_up, true,
-                mDhis2Logo, mnhmlogo,muplogo,mServerUrl, mUsername, mPassword,mlanguage, mLoginButton);
+                mDhis2Logo, mnhmlogo, muplogo, mServerUrl, mUsername, mPassword, mlanguage, mLoginButton);
         ViewUtils.enableViews(mProgressBar);
     }
 
     private void hideProgress() {
         ViewUtils.perfomInAnimation(this, R.anim.in_down,
-                mDhis2Logo,mnhmlogo,muplogo, mServerUrl, mUsername, mPassword,mlanguage, mLoginButton);
+                mDhis2Logo, mnhmlogo, muplogo, mServerUrl, mUsername, mPassword, mlanguage, mLoginButton);
         ViewUtils.hideAndDisableViews(mProgressBar);
     }
 

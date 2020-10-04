@@ -77,6 +77,9 @@ import java.util.Locale;
 
 public class report_analysis_offline_data extends AppCompatActivity {
     private TextView mytextview1;
+    private Integer still_total=0;
+    private Integer still_fresh=0;
+    private Integer still_mes=0;
     private TextView mytextview2;
     private TextView mytextview3;
     private ImageButton button_left;
@@ -88,6 +91,7 @@ public class report_analysis_offline_data extends AppCompatActivity {
     private static String lang = "";
     private static Integer report_no = 0;
     private static String period = "";
+    private static String down_period = "";
     private static String birth_defect = "uXSGoAqZ47g";
     private static String weight_less_25 = "uUXmboutton";
     private static String weight_less_than_18 = "yYVLFvBgeK4";
@@ -104,6 +108,7 @@ public class report_analysis_offline_data extends AppCompatActivity {
 
         if (extras != null) {
             period = extras.getString("PERIOD");
+            down_period = extras.getString("DOWN_PERIOD");
             report_no = extras.getInt("REPORT_ID");
         }
 
@@ -222,6 +227,9 @@ public class report_analysis_offline_data extends AppCompatActivity {
                             }
 
                         }
+
+//
+
                         if (o.get("dataElement").toString().equals("i4FPzOZoySP") && label.contains("Pregnant")) {
                             if (o.get("categoryOptionCombo").toString().equals("JQZYTwtWe9F")) {
                                 report_data.setId("U1.1.1");
@@ -543,6 +551,31 @@ public class report_analysis_offline_data extends AppCompatActivity {
 
                         report_data.setPrice(o.get("value").toString());
                     }
+                    if (i==37) {
+                        Integer fresh=0;
+                        Integer mes=0;
+                        JSONObject ofresh = arr.getJSONObject(i+1);
+                        JSONObject omes = arr.getJSONObject(i+2);
+                        if (!"".equals(ofresh.get("value").toString()) && !" ".equals(ofresh.get("value").toString()))
+                        {
+                            fresh=Integer.parseInt(ofresh.get("value").toString());
+                        }
+                        if (!"".equals(omes.get("value").toString()) && !" ".equals(omes.get("value").toString()))
+                        {
+                            mes=Integer.parseInt(omes.get("value").toString());
+                        }
+
+                        Integer total=fresh+mes;
+                        if (total!=0)
+                        {
+                            report_data.setPrice(total.toString());
+                        }
+                        else if (total==0)
+                        {
+                            report_data.setPrice("");
+                        }
+
+                    }
                     result.add(report_data);
                 }
 
@@ -610,7 +643,7 @@ public class report_analysis_offline_data extends AppCompatActivity {
 
         PrintDocumentAdapter printAdapter;
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP) {
-            printAdapter = mywebview.createPrintDocumentAdapter(period + ".pdf");
+            printAdapter = mywebview.createPrintDocumentAdapter(down_period + ".pdf");
         } else {
             printAdapter = mywebview.createPrintDocumentAdapter();
         }

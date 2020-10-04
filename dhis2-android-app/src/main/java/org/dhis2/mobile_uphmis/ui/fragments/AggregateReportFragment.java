@@ -887,12 +887,12 @@ public class AggregateReportFragment extends Fragment {
                 //ToDO @Sou fix Toast messages
                 ToastManager.makeToast(AggregateReportFragment.getActiveActivity(), AggregateReportFragment.getActiveActivity().getString(R.string.offline_msg), Toast.LENGTH_SHORT).show();
                 if (getActivity()!=null && isNetworkAvailable())
-              {
-                  pgsBar.setVisibility(View.VISIBLE);
-                  tv_pb.setVisibility(View.VISIBLE);
-                  AggregateReportFragment.activity.getWindow().setFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE,
-                          WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
-              }
+                {
+                    pgsBar.setVisibility(View.VISIBLE);
+                    tv_pb.setVisibility(View.VISIBLE);
+                    AggregateReportFragment.activity.getWindow().setFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE,
+                            WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
+                }
 
                 offlineSavedIcon.setVisibility(View.VISIBLE);
                 if (intent.getAction().equals(SAVED_ONLINE_ACTION)) {

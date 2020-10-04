@@ -25,7 +25,7 @@
  * HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
  * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*/
+ */
 
 package org.dhis2.mobile_uphmis.ui.adapters.dataEntry.rows;
 
@@ -44,7 +44,7 @@ public class CheckBoxRow implements Row {
     private LayoutInflater inflater;
     private Field field;
     public boolean readOnly = false;
-    
+
     public CheckBoxRow(LayoutInflater inflater, Field field) {
         this.inflater = inflater;
         this.field = field;
@@ -54,16 +54,16 @@ public class CheckBoxRow implements Row {
     public View getView(View convertView) {
         View view;
         CheckBoxHolder holder;
-        
+
         if (convertView == null) {
             ViewGroup rootView = (ViewGroup) inflater.inflate(R.layout.listview_row_checkbox, null);
             TextView textLabel = (TextView) rootView.findViewById(R.id.text_label);
             CheckBox checkBox = (CheckBox) rootView.findViewById(R.id.checkbox);
             CheckBoxListener listener = new CheckBoxListener(field);
-            
+
             checkBox.setOnCheckedChangeListener(listener);
             holder = new CheckBoxHolder(textLabel, checkBox, listener);
-            
+
             rootView.setTag(holder);
             view = rootView;
         } else {
@@ -73,11 +73,11 @@ public class CheckBoxRow implements Row {
 
         RowCosmetics.setTextLabel(field, holder.textLabel);
         holder.listener.setField(field);
-        
+
         if (field.getValue().equals(Field.TRUE)) holder.checkBox.setChecked(true);
         else if (field.getValue().equals(Field.EMPTY_FIELD)) holder.checkBox.setChecked(false);
 
-        if(readOnly){
+        if (readOnly) {
             holder.checkBox.setEnabled(false);
         } else {
             holder.checkBox.setEnabled(true);
@@ -97,11 +97,11 @@ public class CheckBoxRow implements Row {
 
     private class CheckBoxListener implements OnCheckedChangeListener {
         private Field field;
-        
+
         CheckBoxListener(Field field) {
             this.field = field;
         }
-        
+
         void setField(Field field) {
             this.field = field;
         }
@@ -114,20 +114,20 @@ public class CheckBoxRow implements Row {
                 field.setValue(Field.EMPTY_FIELD);
             }
         }
-        
+
     }
 
     private class CheckBoxHolder {
         final TextView textLabel;
         final CheckBox checkBox;
         final CheckBoxListener listener;
-        
+
         CheckBoxHolder(TextView textLabel, CheckBox checkBox, CheckBoxListener listener) {
             this.textLabel = textLabel;
             this.checkBox = checkBox;
             this.listener = listener;
         }
-    }   
+    }
 }
 
 

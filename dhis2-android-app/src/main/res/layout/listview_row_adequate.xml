@@ -26,11 +26,11 @@
             android:layout_height="wrap_content"
             android:text="@string/no_button_nonade" />
 
-        <RadioButton
-            android:id="@+id/option_other_ad"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/none_button_novalue" />
+<!--        <RadioButton-->
+<!--            android:id="@+id/option_other_ad"-->
+<!--            android:layout_width="wrap_content"-->
+<!--            android:layout_height="wrap_content"-->
+<!--            android:text="@string/none_button_novalue" />-->
     </RadioGroup>
 
 </LinearLayout>

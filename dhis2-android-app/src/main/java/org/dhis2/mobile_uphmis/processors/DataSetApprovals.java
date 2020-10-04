@@ -21,7 +21,8 @@ public class DataSetApprovals {
         String url = buildUrl(context, dataSet, period, ou);
         System.out.println("Recovering dataSetApproval " + url);
         String credentials = PrefUtils.getCredentials(context);
-        Response response = HTTPClient.get(url, credentials);
+        String parent_dis= PrefUtils.getDstrictParent(context);
+        Response response = HTTPClient.get(url, credentials,parent_dis);
         if (response.getCode() >= 200 && response.getCode() < 300) {
              return parseApprovalState(response.getBody());
         }else if(response.getCode() == 409){

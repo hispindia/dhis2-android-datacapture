@@ -53,17 +53,46 @@ import org.dhis2.mobile_uphmis.utils.PrefUtils;
 import org.dhis2.mobile_uphmis.utils.SyncLogger;
 import org.dhis2.mobile_uphmis.utils.TextFileUtils;
 import org.joda.time.LocalDate;
+import org.dhis2.mobile_uphmis.network.NetworkUtils;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
 public class ReportUploadProcessor {
     public static final String TAG = ReportUploadProcessor.class.getSimpleName();
-
+    private static JSONObject json_parent = null;
+    private static String server_date = "";
     private ReportUploadProcessor() {
     }
 
     public static void upload(Context context, DatasetInfoHolder info, ArrayList<Group> groups) {
+
+        String url_ = PrefUtils.getServerURL(context) + URLConstants.SYSTEM_INFO;
+        String creds_ = PrefUtils.getCredentials(context);
+        String  parent_dis_ = PrefUtils.getDstrictParent(context);
+        Response response_ = HTTPClient.get(url_, creds_,parent_dis_);
+
+        String system_date = response_.getBody();
+        if (NetworkUtils.checkConnection(context))
+        {
+            try {
+                json_parent = new JSONObject(system_date);
+                String system_date_ = json_parent.getString("serverDate");
+                int iend = system_date_.indexOf("T");
+                server_date=system_date_.substring(0,iend);
+                Log.d("system_date_",server_date);
+            }
+            catch(
+                    JSONException e)
+            {
+                e.printStackTrace();
+            }
+        }
+
         String data = prepareContent(info, groups);
         //@Sou to save all values to local dataSet
         String data_offline = prepareContent_report(info, groups);
@@ -84,24 +113,45 @@ public class ReportUploadProcessor {
 //        Log.d("data--",data);
         //ToDo @Sou tabular report save datga offline
         saveDatasetOfflineR(context, data_offline, info);
-        saveDataset(context, data, info);
-//        if (!NetworkUtils.checkConnection(context)) {
-//            saveDataset(context, data, info);
+       String parent_dis= PrefUtils.getDstrictParent(context);
+        if (!NetworkUtils.checkConnection(context)) {
+            saveDataset(context, data, info);
+            return;
+        }
+        //@Sou remove offline report on success
+//        String path = TextFileUtils.getDirectoryPath(context, TextFileUtils.Directory.OFFLINE_DATASETS);
+//        File directory = new File(path);
+//        if (!directory.exists()) {
 //            return;
 //        }
-
+//        File[] reportFiles = directory.listFiles();
+//
         String url = PrefUtils.getServerURL(context) + URLConstants.DATASET_UPLOAD_URL;
         String creds = PrefUtils.getCredentials(context);
         Log.i(TAG, data);
-        Response response = HTTPClient.post(url, creds, data);
+        Response response = HTTPClient.postdv(url, creds, data,parent_dis);
 
         String log = String.format("[%s] %s", response.getCode(), response.getBody());
         Log.i(TAG, log);
 
+//        if (response.getCode() >= 200 && response.getCode() < 300) {
+//
+//        }
         if (!HTTPClient.isError(response.getCode())) {
             SyncLogger.log(context, response, info, false);
 
             if (ImportSummariesHandler.isSuccess(response.getBody())) {
+
+//                if (reportFiles != null && reportFiles.length > 0) {
+//                    for (int i=0;i<reportFiles.length;i++) {
+//                        // Retrieve offline report from file system
+//                        String report = TextFileUtils.readTextFile(reportFiles[i]);
+//                        //ToDO @Sou tabular report offline Removing uploaded data
+//                        TextFileUtils.removeFile(reportFiles[i]);
+//                        PrefUtils.removeOfflineReportInfo(context, reportFiles[i].getName());
+//
+//                    }
+//                }
                 NotificationBuilder.fireNotification(context,
                         SyncLogger.getResponseDescription(context, response),
                         SyncLogger.getNotification(info));
@@ -127,18 +177,29 @@ public class ReportUploadProcessor {
     }
 
     private static String prepareContent(DatasetInfoHolder info, ArrayList<Group> groups) {
+
+
+
+
         JsonObject content = new JsonObject();
         JsonArray values = putFieldValuesInJson(groups);
 
         // Retrieve current date
         LocalDate currentDate = new LocalDate();
         String completeDate = currentDate.toString(Constants.DATE_FORMAT);
-
+        Log.d("completeDate--",completeDate);
         content.addProperty(Constants.ORG_UNIT_ID, info.getOrgUnitId());
 //        content.addProperty(Constants.ORG_UNIT_ID, "bptHYMPdxEj");
         content.addProperty(Constants.DATA_SET_ID, info.getFormId());
         content.addProperty(Constants.PERIOD, info.getPeriod());
-        content.addProperty(Constants.COMPLETE_DATE, completeDate);
+        if (server_date!=null)
+        {
+            content.addProperty(Constants.COMPLETE_DATE, server_date);
+        }
+        else
+        {
+            content.addProperty(Constants.COMPLETE_DATE, completeDate);
+        }
         content.add(Constants.DATA_VALUES, values);
 
         JsonArray categoryOptions = putCategoryOptionsInJson(info.getCategoryOptions());
@@ -236,6 +297,7 @@ public class ReportUploadProcessor {
         String jsonReportInfo = gson.toJson(info);
         PrefUtils.saveOfflineReportInfo(context, key, jsonReportInfo);
         TextFileUtils.writeTextFile(context, TextFileUtils.Directory.OFFLINE_DATASETS_, key, data);
+        sendBroadcastSavedOffline(info, context);
 //        TextFileUtils.writeTextFile(context, TextFileUtils.Directory.OFFLINE_DATASETS, key, data);
 //        sendBroadcastSavedOffline(info, context);
     }

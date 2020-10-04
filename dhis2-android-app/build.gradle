@@ -15,8 +15,8 @@ android {
         minSdkVersion 14
         multiDexEnabled true
         targetSdkVersion 29
-        versionCode 112
-        versionName "uphmis_aws_2607"
+        versionCode 123
+        versionName "uphmis_aws_3009"
         applicationId "org.dhis2.mobile_uphmis"
     }
 

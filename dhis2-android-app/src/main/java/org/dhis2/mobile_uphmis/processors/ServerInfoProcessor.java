@@ -78,6 +78,6 @@ public class ServerInfoProcessor {
 
     private static Response tryToGetServerInfo(String server, String creds) {
         String url = server + URLConstants.API_SERVER_INFO;
-        return HTTPClient.get(url, creds);
+        return HTTPClient.get(url, creds,"");
     }
 }

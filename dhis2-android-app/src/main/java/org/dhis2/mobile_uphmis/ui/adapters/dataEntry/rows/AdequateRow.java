@@ -35,8 +35,10 @@ import android.view.ViewGroup;
 import android.widget.CompoundButton;
 import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.TextView;
+
 import org.dhis2.mobile_uphmis.R;
 import org.dhis2.mobile_uphmis.io.models.Field;
+
 
 public class AdequateRow extends RowCosmetics implements Row {
     public static final String FEMALE = "Inadequate";
@@ -46,6 +48,7 @@ public class AdequateRow extends RowCosmetics implements Row {
     private final LayoutInflater inflater;
     private final Field field;
     public boolean readOnly = false;
+
     public AdequateRow(LayoutInflater inflater, Field field) {
         this.inflater = inflater;
         this.field = field;
@@ -62,18 +65,17 @@ public class AdequateRow extends RowCosmetics implements Row {
 
             MaleButtonListener mListener = new MaleButtonListener(field);
             FemaleButtonListener fListener = new FemaleButtonListener(field);
-            OtherButtonListener oListener = new OtherButtonListener(field);
+//            OtherButtonListener oListener = new OtherButtonListener(field);
 
             CompoundButton mButton = (CompoundButton) rootView.findViewById(R.id.option_male_ad);
             CompoundButton fButton = (CompoundButton) rootView.findViewById(R.id.option_female_ad);
-            CompoundButton oButton = (CompoundButton) rootView.findViewById(R.id.option_other_ad);
+//            CompoundButton oButton = (CompoundButton) rootView.findViewById(R.id.option_other_ad);
 
             mButton.setOnCheckedChangeListener(mListener);
             fButton.setOnCheckedChangeListener(fListener);
-            oButton.setOnCheckedChangeListener(oListener);
+//            oButton.setOnCheckedChangeListener(oListener);
 
-            holder = new BooleanRowHolder(label, mListener, fListener, oListener, mButton, fButton,
-                    oButton);
+            holder = new BooleanRowHolder(label, mListener, fListener, mButton, fButton);
 
             rootView.setTag(holder);
             view = rootView;
@@ -86,31 +88,28 @@ public class AdequateRow extends RowCosmetics implements Row {
 
         holder.optionMaleListener.setField(field);
         holder.optionFemaleListener.setField(field);
-        holder.optionOtherListener.setField(field);
+//        holder.optionOtherListener.setField(field);
 
         holder.optionMale.setOnCheckedChangeListener(holder.optionMaleListener);
         holder.optionFemale.setOnCheckedChangeListener(holder.optionFemaleListener);
-        holder.optionOther.setOnCheckedChangeListener(holder.optionOtherListener);
+//        holder.optionOther.setOnCheckedChangeListener(holder.optionOtherListener);
 
-        if (field.getValue().equals(MALE))
-        {
+        if (field.getValue().equals(MALE)) {
             holder.optionMale.setChecked(true);
-        }
-
-        else if (field.getValue().equals(FEMALE))
+        } else if (field.getValue().equals(FEMALE))
             holder.optionFemale.setChecked(true);
         else if (field.getValue().equals(OTHER))
-            holder.optionOther.setChecked(true);
+//            holder.optionOther.setChecked(true);
 
-        if(readOnly){
-            holder.optionOther.setEnabled(false);
-            holder.optionFemale.setEnabled(false);
-            holder.optionMale.setEnabled(false);
-        } else {
-            holder.optionOther.setEnabled(true);
-            holder.optionFemale.setEnabled(true);
-            holder.optionMale.setEnabled(true);
-        }
+            if (readOnly) {
+//            holder.optionOther.setEnabled(false);
+                holder.optionFemale.setEnabled(false);
+                holder.optionMale.setEnabled(false);
+            } else {
+//            holder.optionOther.setEnabled(true);
+                holder.optionFemale.setEnabled(true);
+                holder.optionMale.setEnabled(true);
+            }
         return view;
     }
 
@@ -130,25 +129,24 @@ public class AdequateRow extends RowCosmetics implements Row {
 
         final CompoundButton optionMale;
         final CompoundButton optionFemale;
-        final CompoundButton optionOther;
+//        final CompoundButton optionOther;
 
         final MaleButtonListener optionMaleListener;
         final FemaleButtonListener optionFemaleListener;
-        final OtherButtonListener optionOtherListener;
+//        final OtherButtonListener optionOtherListener;
 
         BooleanRowHolder(TextView tLabel, MaleButtonListener mListener,
-                         FemaleButtonListener fListener, OtherButtonListener oListener,
-                         CompoundButton mButton, CompoundButton fButton, CompoundButton oButton) {
+                         FemaleButtonListener fListener, CompoundButton mButton, CompoundButton fButton) {
 
             textLabel = tLabel;
 
             optionMaleListener = mListener;
             optionFemaleListener = fListener;
-            optionOtherListener = oListener;
+//            optionOtherListener = oListener;
 
             optionMale = mButton;
             optionFemale = fButton;
-            optionOther = oButton;
+//            optionOther = oButton;
         }
     }
 

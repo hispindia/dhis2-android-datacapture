@@ -25,7 +25,7 @@
  * HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
  * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*/
+ */
 
 package org.dhis2.mobile_uphmis.ui.adapters.dataEntry.rows;
 
@@ -68,8 +68,9 @@ public class AutoCompleteRow extends EditTextRow implements Row {
     private final Map<String, String> mCodeToNameMap;
     private final Map<String, String> mNameToCodeMap;
     private final ArrayList<String> mOptions;
+
     public AutoCompleteRow(LayoutInflater inflater, Field field, OptionSet optionset, Context context) {
-        String lang= PrefUtils.getLocale(context);
+        String lang = PrefUtils.getLocale(context);
 
         this.inflater = inflater;
         this.field = field;
@@ -79,36 +80,28 @@ public class AutoCompleteRow extends EditTextRow implements Row {
         mNameToCodeMap = new LinkedHashMap<>();
         //@Sou fix for options_set
         if (optionset.getOptions() != null) {
-            if (optionset.getId().equals("xxaUm3brvM3"))
-            {
+            if (optionset.getId().equals("xxaUm3brvM3")) {
                 for (Option option : optionset.getOptions()) {
-                    if (lang!=null&&lang.equals("hi")) {
+                    if (lang != null && lang.equals("hi")) {
 
-                        if (option.getCode().equals("adequate"))
-                        {
+                        if (option.getCode().equals("adequate")) {
                             mCodeToNameMap.put(option.getCode(), "पर्याप्त");
                             mNameToCodeMap.put("पर्याप्त", option.getCode());
-                        }
-                        else if (option.getCode().equals("Inadequate"))
-                        {
+                        } else if (option.getCode().equals("Inadequate")) {
                             mCodeToNameMap.put(option.getCode(), "अपर्याप्त");
                             mNameToCodeMap.put("अपर्याप्त", option.getCode());
                         }
 
-                    }
-                    else
-                    {
+                    } else {
                         mCodeToNameMap.put(option.getCode(), option.getName());
                         mNameToCodeMap.put(option.getName(), option.getCode());
                     }
 
                 }
-            }
-            else
-            {
+            } else {
                 for (Option option : optionset.getOptions()) {
-                        mCodeToNameMap.put(option.getCode(), option.getName());
-                        mNameToCodeMap.put(option.getName(), option.getCode());
+                    mCodeToNameMap.put(option.getCode(), option.getName());
+                    mNameToCodeMap.put(option.getName(), option.getCode());
 
                 }
             }
@@ -167,7 +160,7 @@ public class AutoCompleteRow extends EditTextRow implements Row {
         holder.button.setOnClickListener(holder.listener);
         holder.autoComplete.clearFocus();
         holder.autoComplete.setOnEditorActionListener(mOnEditorActionListener);
-        if(readOnly){
+        if (readOnly) {
             holder.button.setEnabled(false);
             holder.autoComplete.setEnabled(false);
         } else {
@@ -252,6 +245,7 @@ public class AutoCompleteRow extends EditTextRow implements Row {
             }
         }
     }
+
     class AutoCompleteEditTextWatcher implements TextWatcher {
         private Field field;
         private Map<String, String> nameToCodeMap;
@@ -268,7 +262,7 @@ public class AutoCompleteRow extends EditTextRow implements Row {
         public void afterTextChanged(Editable s) {
             String name = s != null ? s.toString() : EMPTY_FIELD;
             String newValue = nameToCodeMap.get(name);
-            if(newValue==null){
+            if (newValue == null) {
                 return;
             }
             if (isEmpty(newValue)) {
@@ -281,10 +275,12 @@ public class AutoCompleteRow extends EditTextRow implements Row {
         }
 
         @Override
-        public void beforeTextChanged(CharSequence s, int start, int count, int after) { }
+        public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+        }
 
         @Override
-        public void onTextChanged(CharSequence s, int start, int before, int count) { }
+        public void onTextChanged(CharSequence s, int start, int before, int count) {
+        }
 
         public void setOptions(Map<String, String> nameToCodeMap) {
             this.nameToCodeMap = nameToCodeMap;

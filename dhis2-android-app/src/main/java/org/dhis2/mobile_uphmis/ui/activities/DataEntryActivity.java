@@ -13,6 +13,7 @@ import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
+import android.os.StrictMode;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.AsyncTaskLoader;
 import android.support.v4.content.Loader;
@@ -53,6 +54,7 @@ import org.dhis2.mobile_uphmis.io.models.Group;
 import org.dhis2.mobile_uphmis.network.HTTPClient;
 import org.dhis2.mobile_uphmis.network.NetworkUtils;
 import org.dhis2.mobile_uphmis.network.Response;
+import org.dhis2.mobile_uphmis.network.URLConstants;
 import org.dhis2.mobile_uphmis.ui.adapters.dataEntry.FieldAdapter;
 import org.dhis2.mobile_uphmis.ui.adapters.dataEntry.rows.KeyboardUtils;
 import org.dhis2.mobile_uphmis.utils.PrefUtils;
@@ -61,6 +63,9 @@ import org.dhis2.mobile_uphmis.utils.ToastManager;
 import org.dhis2.mobile_uphmis.utils.ViewUtils;
 import org.dhis2.mobile_uphmis.utils.date.expiryday.ExpiryDayValidator;
 import org.dhis2.mobile_uphmis.utils.date.expiryday.ExpiryDayValidatorFactory;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -76,6 +81,7 @@ public class DataEntryActivity extends BaseActivity implements LoaderManager.Loa
     private static final String STATE_DOWNLOAD_ATTEMPTED = "state:downloadAttempted";
     private static final String STATE_DOWNLOAD_IN_PROGRESS = "state:downloadInProgress";
     private static final String STATE_SHOW_MENU_ITEM = "state_showMenuItem";
+    private Boolean form_read = null;
     private static String hiv_found_positive_anc = "";
     private static String hiv_positive_test_conducted = "";
     private static String anc_registrations = "";
@@ -161,11 +167,14 @@ public class DataEntryActivity extends BaseActivity implements LoaderManager.Loa
     private static String NB_ASHA_male_1800 = "";
     private static String NB_ASHA_male_2500 = "";
     private static String opv0 = "";
+    private static String lock_exid = "";
+    private static String dis_assigned_id = "";
     private static String hepi_birth = "";
     private static String institutional_delivery_48 = "";
     private static String institutional_delivery_conducted = "";
     private static final int LOADER_FORM_ID = 896927645;
-
+    private static JSONObject json_parent = null;
+    private static JSONObject block_parent = null;
     // views
     private RelativeLayout progressBarLayout;
     private AppCompatSpinner formGroupSpinner;
@@ -192,6 +201,7 @@ public class DataEntryActivity extends BaseActivity implements LoaderManager.Loa
     private TextView disabled_fields;
     private TextView currentField1;
 
+
     public static void navigateTo(Activity activity, DatasetInfoHolder info) {
         if (info != null && activity != null) {
             Intent intent = new Intent(activity, DataEntryActivity.class);
@@ -207,6 +217,10 @@ public class DataEntryActivity extends BaseActivity implements LoaderManager.Loa
     protected void onCreate(Bundle savedInstanceState) {
         PrefUtils.initScrollData(getBaseContext(), "false");
         super.onCreate(savedInstanceState);
+
+        StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
+        StrictMode.setThreadPolicy(policy);
+
         lang = PrefUtils.getLocale(getBaseContext());
 
         if (lang != null && lang.equals("hi")) {
@@ -487,20 +501,89 @@ public class DataEntryActivity extends BaseActivity implements LoaderManager.Loa
     }
 
     private void loadGroupsIntoAdapters(List<Group> groups, Form form) {
+
+        if (NetworkUtils.checkConnection(this)) {
+            String server_url = PrefUtils.getServerURL(getBaseContext());
+            String cred = PrefUtils.getCredentials(getBaseContext());
+            String url = server_url + URLConstants.LOCKEX_SQLVIEW;
+            Response block_parent_ = HTTPClient.get(url, cred, "");
+            String block_assigned = block_parent_.getBody();
+
+            try {
+                json_parent = new JSONObject(block_assigned);
+                JSONArray arr_par = json_parent.getJSONArray("sqlViews");
+                for (int i = 0; i < arr_par.length(); i++) {
+                    JSONObject o = arr_par.getJSONObject(i);
+                    lock_exid = o.getString("id");
+
+                    Log.d("id------", lock_exid);
+
+                    String lock_url = server_url + URLConstants.SQLVIEW_API + lock_exid + "/data?var=uid:" + datasetInfoHolder.getOrgUnitId() + "&var=dsid:" + datasetInfoHolder.getFormId();
+                    Log.d("lock_url--", lock_url);
+                    Response ou_parent_id = HTTPClient.get(lock_url, cred, "");
+                    dis_assigned_id = ou_parent_id.getBody();
+                    if (dis_assigned_id == null) {
+
+                    } else {
+
+                        try {
+                            json_parent = new JSONObject(dis_assigned_id);
+                            JSONObject getSth = json_parent.getJSONObject("listGrid");
+                            JSONArray arr_par_ = getSth.getJSONArray("rows");
+                            String dhis_parente = arr_par_.toString();
+                            for (int lo = 0; lo < arr_par_.length(); lo++) {
+                                String period = arr_par_.get(lo).toString().substring(arr_par_.get(lo).toString().lastIndexOf(',')).trim();
+                                String perref = period.replaceAll("[-+.^:,]", "");
+                                if (perref.contains(mPeriod)) {
+                                    form_read = false;
+                                }
+                            }
+
+                        } catch (
+                                JSONException e) {
+                            e.printStackTrace();
+                        }
+                    }
+
+                }
+            } catch (
+                    JSONException e) {
+                e.printStackTrace();
+            }
+
+
+        }
+
         if (groups != null) {
             List<FieldAdapter> adapters = new ArrayList<>();
-
             boolean readOnly = false;
             if (form.getOptions().getexpiryDays() > 0) {
                 int expiringDay = form.getOptions().getexpiryDays();
                 String periodType = form.getOptions().getPeriodType();
                 ExpiryDayValidator expiryDayValidator = ExpiryDayValidatorFactory.getExpiryDay(
                         periodType, expiringDay, mPeriod);
-                if (!expiryDayValidator.canEdit()) {
-                    readOnly = true;
+                Log.d("mPeriod--", mPeriod.toString());
+                Log.d("expiringDay--", String.valueOf(expiringDay));
 
-                    showToast(R.string.dataset_readonly_by_expiry_days);
+                //@Sou configure lock exception
+                if (dis_assigned_id == null) {
+                    if (!expiryDayValidator.canEdit()) {
+                        readOnly = true;
+
+                        showToast(R.string.dataset_readonly_by_expiry_days);
+                    }
+                } else {
+                    if (!expiryDayValidator.canEdit()) {
+                        if (form_read != null) {
+                            readOnly = false;
+                        } else {
+                            readOnly = true;
+                            showToast(R.string.dataset_readonly_by_expiry_days);
+                        }
+                    }
+
                 }
+
             }
             if (form.isApproved()) {
                 readOnly = true;
@@ -669,6 +752,7 @@ public class DataEntryActivity extends BaseActivity implements LoaderManager.Loa
                         if (group.getFields().size() == 5) {
                             still_fresh = group.getFields().get(3).getValue().trim();
                             still_mas = group.getFields().get(4).getValue().trim();
+//                            Integer still_total=Integer.parseInt(still_fresh)+Integer.parseInt(still_mas);
                             if ("".equals(still_fresh) && !"".equals(still_mas)) {
                                 Integer still_total = Integer.parseInt(still_mas);
                                 field.setValue(still_total.toString());
@@ -682,7 +766,13 @@ public class DataEntryActivity extends BaseActivity implements LoaderManager.Loa
                                 field.setValue(still_total.toString());
 
                             } else if ("".equals(still_fresh) && "".equals(still_mas)) {
-                                field.setValue("");
+                                field.setValue(" ");
+                            } else if (" ".equals(still_fresh) && "".equals(still_mas)) {
+                                field.setValue(" ");
+                            } else if (" ".equals(still_fresh) && " ".equals(still_mas)) {
+                                field.setValue(" ");
+                            } else if ("".equals(still_fresh) && " ".equals(still_mas)) {
+                                field.setValue(" ");
                             }
                         }
 
@@ -1079,6 +1169,18 @@ public class DataEntryActivity extends BaseActivity implements LoaderManager.Loa
 
             }
         }
+        //Rule 1 for blank
+        if ((!"".equals(hiv_found_positive_anc.trim()) && "".equals(hiv_positive_test_conducted.trim())) || ("".equals(hiv_found_positive_anc.trim()) && !"".equals(hiv_positive_test_conducted.trim()))) {
+            if (lang != null && lang.equals("hi")) {
+                validation_errors_found++;
+                error_message += validation_errors_found + "। M10.B 10.2.1.b एचआईवी +ve पाया गया मामला(" + hiv_found_positive_anc + ")--- M10.B 10.2.1.a एचआईवी के लिए जांच की गयी गर्भवती महिलाओं की संख्या से कम या बराबर होना चाहिए (" + hiv_positive_test_conducted + ")" + "\n\n";
+
+            } else {
+                validation_errors_found++;
+                error_message += validation_errors_found + ". M10.B 10.2.1.b HIV found +ve (" + hiv_found_positive_anc + ") should be less than or equal to M10.B 10.2.1.a Number of pregnant women screened(" + hiv_positive_test_conducted + ")" + "\n\n";
+
+            }
+        }
 
 
         //Rule: Child immunisation (9-11months) - Measles & Rubella (MR)- 1st Dose 1st dose >=
@@ -1095,6 +1197,19 @@ public class DataEntryActivity extends BaseActivity implements LoaderManager.Loa
                     error_message += validation_errors_found + ". M6.B 6.2.1 Measles & Rubella (MR)- 1st dose (" + measles_rubella_1st_dose + ") should be greater than or equal to M6.C (6.2.4.a + 6.2.4.b ) Full Immunized (male + female) (" + total + ")(" + fully_immunized_911_male + " + " + fully_immunized_911__female + ")" + "\n\n";
 
                 }
+
+            }
+        }
+        //Rule 2 for blank
+        if ((!"".equals(measles_rubella_1st_dose.trim()) && "".equals(fully_immunized_911_male.trim()) && "".equals(fully_immunized_911__female.trim())) || ("".equals(measles_rubella_1st_dose.trim()) && !"".equals(fully_immunized_911_male.trim()) && !"".equals(fully_immunized_911__female.trim()))) {
+            if (lang != null && lang.equals("hi")) {
+//                    int total=Integer.parseInt(fully_immunized_911_male)+Integer.parseInt(fully_immunized_911__female);
+                validation_errors_found++;
+                error_message += validation_errors_found + "। M6.B 6.2.1 बाल प्रतिरक्षण - खसरा और रूबेला (एमआर) - प्रथम खुराक (" + measles_rubella_1st_dose + ") M6.C 6.2.4.a + 6.2.4.b - 9 से 11 महीनों के बीच आयु वर्ग के बच्चों की संख्या जिन्हे पूर्ण प्रतिरक्षित किया- (पुरुष + महिला)से अधिक या बराबर होना चाहिए। (" + fully_immunized_911_male + " + " + fully_immunized_911__female + ")" + "\n\n";
+
+            } else {
+                validation_errors_found++;
+                error_message += validation_errors_found + ". M6.B 6.2.1 Measles & Rubella (MR)- 1st dose (" + measles_rubella_1st_dose + ") should be greater than or equal to M6.C (6.2.4.a + 6.2.4.b ) Full Immunized (male + female) (" + fully_immunized_911_male + " + " + fully_immunized_911__female + ")" + "\n\n";
 
             }
         }
@@ -1130,7 +1245,18 @@ public class DataEntryActivity extends BaseActivity implements LoaderManager.Loa
                 }
             }
         }
+        //Rule 5 for blank
+        if ((!"".equals(newborns_less_weight.trim()) && "".equals(nb_weight_1800.trim())) || ("".equals(newborns_less_weight.trim()) && !"".equals(nb_weight_1800.trim()))) {
+            if (lang != null && lang.equals("hi")) {
+                validation_errors_found++;
+                error_message += validation_errors_found + "। M3.B- 3.3.2 नवजात शिशुओं की संख्या जिनका वजन 2.5 किलो से कम रहा (" + newborns_less_weight + ") M3.B-U2.2 नवजात शिशुओं की संख्या जिनका वजन 1800 ग्राम से कम रहा से अधिक या बराबर होना चाहिए - (" + nb_weight_1800 + ")" + "\n\n";
 
+            } else {
+                validation_errors_found++;
+                error_message += validation_errors_found + ". M3.B-3.3.2  2.5 Newborns having weight less than 2.5 kg (" + newborns_less_weight + ") should be greater than or equal to  M3.B-U2.2  Newborn weighted at birth less than 1800 gram (" + nb_weight_1800 + ")" + "\n\n";
+
+            }
+        }
         //Rule 6
         if (!"".equals(asha_present) && !" ".equals(asha_present) && !"".equals(immunisation_sessions_held) && !" ".equals(immunisation_sessions_held)) {
             if (Integer.parseInt(asha_present) > Integer.parseInt(immunisation_sessions_held)) {
@@ -1143,6 +1269,18 @@ public class DataEntryActivity extends BaseActivity implements LoaderManager.Loa
                     error_message += validation_errors_found + ". M6.H- 6.7.3 Number of Immunisation sessions where ASHAs were present (" + asha_present + ") should be less than or equal to M6.H- 6.7.2 Immunisation sessions held  (" + immunisation_sessions_held + ")" + "\n\n";
 
                 }
+
+            }
+        }
+        //Rule 6 for blank
+        if ((!"".equals(asha_present.trim()) && "".equals(immunisation_sessions_held.trim())) || ("".equals(asha_present.trim()) && !"".equals(immunisation_sessions_held.trim()))) {
+            if (lang != null && lang.equals("hi")) {
+                validation_errors_found++;
+                error_message += validation_errors_found + "। M6.H-6.7.3 सत्रों की संख्या  जिनमें आशा कार्यकर्ता उपस्थित थीं (" + asha_present + ") M6.H- 6.7.2 प्रतिरक्षण आयोजित सत्र से कम या बराबर होना चाहिए(" + immunisation_sessions_held + ")" + "\n\n";
+
+            } else {
+                validation_errors_found++;
+                error_message += validation_errors_found + ". M6.H- 6.7.3 Number of Immunisation sessions where ASHAs were present (" + asha_present + ") should be less than or equal to M6.H- 6.7.2 Immunisation sessions held  (" + immunisation_sessions_held + ")" + "\n\n";
 
             }
         }
@@ -1161,7 +1299,18 @@ public class DataEntryActivity extends BaseActivity implements LoaderManager.Loa
 
             }
         }
+        //Rule 7 for blank
+        if ((!"".equals(syphilis_poc.trim()) && "".equals(syphilis_pw.trim())) || ("".equals(syphilis_poc.trim()) && !"".equals(syphilis_pw.trim()))) {
+            if (lang != null && lang.equals("hi")) {
+                validation_errors_found++;
+                error_message += validation_errors_found + "। M1.D- 1.5.1.b उपरोक्त में, गर्भवती महिला की संख्या जो सिफलिस के लिए सेरो पॉजिटिव पायी गयी(" + syphilis_poc + ") M1.D- 1.5.1.a गर्भवती महिलाओं की संख्या जिनका सिफ़िलिस के लिए पीओसी टेस्ट किया गयासे कम या बराबर होना चाहिए(" + syphilis_pw + ")" + "\n\n";
 
+            } else {
+                validation_errors_found++;
+                error_message += validation_errors_found + ". M1.D-1.5.1.b Out of above, pregnant women found sero positive for Syphilis (" + syphilis_poc + ") should be less than or equal to M1.D-1.5.1.a  Number of pregnant women tested for Syphilis (" + syphilis_pw + ")" + "\n\n";
+
+            }
+        }
 
         //Rule:Number of PW tested for Haemoglobin (Hb ) 4 or more than 4 times for respective ANCs <= Number of PW received 4 or more ANC check ups
         if (!"".equals(pw_tested_hb) && !" ".equals(pw_tested_hb) && !"".equals(anc_4) && !" ".equals(anc_4)) {
@@ -1178,21 +1327,33 @@ public class DataEntryActivity extends BaseActivity implements LoaderManager.Loa
 
             }
         }
-        //@Rule 11 M1.B. 1.2.7 <=  M1.A 1.1
-        if (!"".equals(anc_4) && !" ".equals(anc_4) && !"".equals(anc_registrations) && !" ".equals(anc_registrations)) {
-            if (Integer.parseInt(anc_4) > Integer.parseInt(anc_registrations)) {
-                if (lang != null && lang.equals("hi")) {
-                    validation_errors_found++;
-                    error_message += validation_errors_found + "। M1.B- 1.2.7 गर्भवती महिलाओं की संख्या जिन्हे 4 या अधिक बार एएनसी जांच मिली हो (" + anc_4 + ") M1.A- 1.1 एएनसी के लिए पंजीकृत गर्भवती महिलाओं की कुल संख्या से कम या बराबर होना चाहिए ((" + anc_registrations + ")" + "\n\n";
+        //Rule 8 for blank no:
+        if ((!"".equals(pw_tested_hb.trim()) && "".equals(anc_4.trim())) || ("".equals(pw_tested_hb.trim()) && !"".equals(anc_4.trim()))) {
+            if (lang != null && lang.equals("hi")) {
+                validation_errors_found++;
+                error_message += validation_errors_found + "। M1.B-1.4.1 4 या अधिक बार एचबी जांच की गयी गर्भवती महिलाओं की संख्या (सापेक्षिक प्रसव पूर्व देखभाल के तहत)(" + pw_tested_hb + ") M1.B- 1.2.7 गर्भवती महिलाओं की संख्या जिन्हे 4 या अधिक बार एएनसी जांच मिली होसे कम या बराबर होना चाहिए (" + anc_4 + ")" + "\n\n";
 
-                } else {
-                    validation_errors_found++;
-                    error_message += validation_errors_found + ". M1.B-1.2.7 Number of PW received 4 or more ANC check ups (" + anc_4 + ") should be less than or equal to M1.A- 1.1 Total number of pregnant women registered for ANC  (" + anc_registrations + ")" + "\n\n";
-
-                }
+            } else {
+                validation_errors_found++;
+                error_message += validation_errors_found + ". M1.B-1.4.1 Pregnant women tested for Haemoglobin (Hb ) 4 or more than 4 times for respective ANCs (" + pw_tested_hb + ") should be less than or equal to M1.B- 1.2.7  4 ANC checkups  (" + anc_4 + ")" + "\n\n";
 
             }
         }
+        //@Rule 11 M1.B. 1.2.7 <=  M1.A 1.1
+//        if (!"".equals(anc_4) && !" ".equals(anc_4) && !"".equals(anc_registrations) && !" ".equals(anc_registrations)) {
+//            if (Integer.parseInt(anc_4) > Integer.parseInt(anc_registrations)) {
+//                if (lang != null && lang.equals("hi")) {
+//                    validation_errors_found++;
+//                    error_message += validation_errors_found + "। M1.B- 1.2.7 गर्भवती महिलाओं की संख्या जिन्हे 4 या अधिक बार एएनसी जांच मिली हो (" + anc_4 + ") M1.A- 1.1 एएनसी के लिए पंजीकृत गर्भवती महिलाओं की कुल संख्या से कम या बराबर होना चाहिए ((" + anc_registrations + ")" + "\n\n";
+//
+//                } else {
+//                    validation_errors_found++;
+//                    error_message += validation_errors_found + ". M1.B-1.2.7 Number of PW received 4 or more ANC check ups (" + anc_4 + ") should be less than or equal to M1.A- 1.1 Total number of pregnant women registered for ANC  (" + anc_registrations + ")" + "\n\n";
+//
+//                }
+//
+//            }
+//        }
 
         //@Rule 12 M1.C
         if (!"".equals(hypertension_detected) && !" ".equals(hypertension_detected) && !"".equals(hypertension_detected_institution) && !" ".equals(hypertension_detected_institution)) {
@@ -1385,7 +1546,18 @@ public class DataEntryActivity extends BaseActivity implements LoaderManager.Loa
 
             }
         }
+        //Rule 22 for blank
+        if ((!"".equals(newborns_breast_fed.trim()) && "".equals(live_birth_male.trim()) && "".equals(live_birth_female.trim())) || ("".equals(newborns_breast_fed.trim()) && !"".equals(live_birth_male.trim()) && !"".equals(live_birth_female.trim()))) {
+            if (lang != null && lang.equals("hi")) {
+                validation_errors_found++;
+                error_message += validation_errors_found + "| M3.B 3.3.3 नवजात शिशुओं की संख्या जिन्हें जन्म के 1 घंटे के भीतर स्तनपान कराया गया (" + newborns_breast_fed + ")M3-3.3.1.a+3.1.1.b (जीवित जन्म (पुरुष + महिला)से कम या बराबर होना चाहिए (" + live_birth_male + " + " + live_birth_female + ")" + "\n\n";
 
+            } else {
+                validation_errors_found++;
+                error_message += validation_errors_found + ". M3.B- 3.3.3 Newborns breast fed within 1 hour of birth(" + newborns_breast_fed + ") should be less than or equal to sum of M3-3.3.1.a+3.1.1.b  Live births Male+ Female(" + live_birth_male + " + " + live_birth_female + ")" + "\n\n";
+
+            }
+        }
         //@Rule 23
         if (!"".equals(pnc_48) && !" ".equals(pnc_48) && !"".equals(sba) && !" ".equals(sba) && !"".equals(non_sba) && !" ".equals(non_sba)) {
             if (Integer.parseInt(pnc_48) > (Integer.parseInt(sba) + Integer.parseInt(non_sba))) {
@@ -1404,38 +1576,38 @@ public class DataEntryActivity extends BaseActivity implements LoaderManager.Loa
         }
 
         //@Rule 24
-        if (!"".equals(IFA_180) && !" ".equals(IFA_180) && !"".equals(sba) && !" ".equals(sba) && !"".equals(non_sba) && !" ".equals(non_sba) && !"".equals(institutional_delivery_conducted) && !" ".equals(institutional_delivery_conducted)) {
-            if (Integer.parseInt(IFA_180) > (Integer.parseInt(sba) + Integer.parseInt(non_sba) + Integer.parseInt(institutional_delivery_conducted))) {
-                int total = Integer.parseInt(sba) + Integer.parseInt(non_sba) + Integer.parseInt(institutional_delivery_conducted);
-                if (lang != null && lang.equals("hi")) {
-                    validation_errors_found++;
-                    error_message += validation_errors_found + "| M4-4.3 प्रसव पश्चात माताओं की संख्या जिन्हें 180 आईएफए गोली दी गयी" + IFA_180 + ") M2.A- 2.1.1.a जो एस॰बी॰ए॰ प्रशिक्षित (डॉक्टर / नर्स / एएनएम) द्वारा कराया गया + 2.1.1.b जो गैर एस॰बी॰ए॰ (प्रशिक्षित बर्थ अटेंडेंट (टीबीए) / रिलेटिव / आदि) द्वारा कराया गया  + 2.2 संस्थागत प्रसव की संख्यासे कम या बराबर होना चाहिए (" + total + ")(" + sba + "+" + non_sba + "+" + institutional_delivery_conducted + ")" + "\n\n";
-
-                } else {
-                    validation_errors_found++;
-                    error_message += validation_errors_found + ". M4- 4.3 provided full course of 180 IFA tablets (" + IFA_180 + ") should be less than or equal to M2.A-2.1 Home Deliveries Attended by SBA+ Non-SBA + 2.2 Institutional delivery(including c-section)(" + total + ")(" + sba + " + " + non_sba + "+" + institutional_delivery_conducted + ")" + "\n\n";
-
-                }
-
-            }
-        }
+//        if (!"".equals(IFA_180) && !" ".equals(IFA_180) && !"".equals(sba) && !" ".equals(sba) && !"".equals(non_sba) && !" ".equals(non_sba) && !"".equals(institutional_delivery_conducted) && !" ".equals(institutional_delivery_conducted)) {
+//            if (Integer.parseInt(IFA_180) > (Integer.parseInt(sba) + Integer.parseInt(non_sba) + Integer.parseInt(institutional_delivery_conducted))) {
+//                int total = Integer.parseInt(sba) + Integer.parseInt(non_sba) + Integer.parseInt(institutional_delivery_conducted);
+//                if (lang != null && lang.equals("hi")) {
+//                    validation_errors_found++;
+//                    error_message += validation_errors_found + "| M4-4.3 प्रसव पश्चात माताओं की संख्या जिन्हें 180 आईएफए गोली दी गयी" + IFA_180 + ") M2.A- 2.1.1.a जो एस॰बी॰ए॰ प्रशिक्षित (डॉक्टर / नर्स / एएनएम) द्वारा कराया गया + 2.1.1.b जो गैर एस॰बी॰ए॰ (प्रशिक्षित बर्थ अटेंडेंट (टीबीए) / रिलेटिव / आदि) द्वारा कराया गया  + 2.2 संस्थागत प्रसव की संख्यासे कम या बराबर होना चाहिए (" + total + ")(" + sba + "+" + non_sba + "+" + institutional_delivery_conducted + ")" + "\n\n";
+//
+//                } else {
+//                    validation_errors_found++;
+//                    error_message += validation_errors_found + ". M4- 4.3 provided full course of 180 IFA tablets (" + IFA_180 + ") should be less than or equal to M2.A-2.1 Home Deliveries Attended by SBA+ Non-SBA + 2.2 Institutional delivery(including c-section)(" + total + ")(" + sba + " + " + non_sba + "+" + institutional_delivery_conducted + ")" + "\n\n";
+//
+//                }
+//
+//            }
+//        }
 
         //@Rule 25
-        if (!"".equals(cal_360) && !" ".equals(cal_360) && !"".equals(sba) && !" ".equals(sba) && !"".equals(non_sba) && !" ".equals(non_sba) && !"".equals(institutional_delivery_conducted) && !" ".equals(institutional_delivery_conducted)) {
-            if (Integer.parseInt(cal_360) > (Integer.parseInt(sba) + Integer.parseInt(non_sba) + Integer.parseInt(institutional_delivery_conducted))) {
-                int total = Integer.parseInt(sba) + Integer.parseInt(non_sba) + Integer.parseInt(institutional_delivery_conducted);
-                if (lang != null && lang.equals("hi")) {
-                    validation_errors_found++;
-                    error_message += validation_errors_found + "| M4- 4.4 प्रसव पश्चात माताओं की संख्या जिन्हें 360 कैल्शियम की गोलियां प्रदान की गयी (" + cal_360 + ") M2.A- 2.1.1.a  जो एस॰बी॰ए॰ प्रशिक्षित (डॉक्टर / नर्स / एएनएम) द्वारा कराया गया + 2.1.1.b जो गैर एस॰बी॰ए॰ (प्रशिक्षित बर्थ अटेंडेंट (टीबीए) / रिलेटिव / आदि) द्वारा कराया गया + 2.2 संस्थागत प्रसव की संख्या से कम या बराबर होना चाहिए (" + total + ")(" + sba + "+" + non_sba + " + " + institutional_delivery_conducted + ")" + "\n\n";
-
-                } else {
-                    validation_errors_found++;
-                    error_message += validation_errors_found + ". M4- 4.4 PW given 360 Calcium carbonate with D3 tablet(" + cal_360 + ") should be less than or equal to M2.A-2.1 Home Deliveries Attended by SBA+ Non-SBA + M2.B-2.2 Institutional delivery(including c-section) (" + total + ")(" + sba + " + " + non_sba + "+" + institutional_delivery_conducted + ")" + "\n\n";
-
-                }
-
-            }
-        }
+//        if (!"".equals(cal_360) && !" ".equals(cal_360) && !"".equals(sba) && !" ".equals(sba) && !"".equals(non_sba) && !" ".equals(non_sba) && !"".equals(institutional_delivery_conducted) && !" ".equals(institutional_delivery_conducted)) {
+//            if (Integer.parseInt(cal_360) > (Integer.parseInt(sba) + Integer.parseInt(non_sba) + Integer.parseInt(institutional_delivery_conducted))) {
+//                int total = Integer.parseInt(sba) + Integer.parseInt(non_sba) + Integer.parseInt(institutional_delivery_conducted);
+//                if (lang != null && lang.equals("hi")) {
+//                    validation_errors_found++;
+//                    error_message += validation_errors_found + "| M4- 4.4 प्रसव पश्चात माताओं की संख्या जिन्हें 360 कैल्शियम की गोलियां प्रदान की गयी (" + cal_360 + ") M2.A- 2.1.1.a  जो एस॰बी॰ए॰ प्रशिक्षित (डॉक्टर / नर्स / एएनएम) द्वारा कराया गया + 2.1.1.b जो गैर एस॰बी॰ए॰ (प्रशिक्षित बर्थ अटेंडेंट (टीबीए) / रिलेटिव / आदि) द्वारा कराया गया + 2.2 संस्थागत प्रसव की संख्या से कम या बराबर होना चाहिए (" + total + ")(" + sba + "+" + non_sba + " + " + institutional_delivery_conducted + ")" + "\n\n";
+//
+//                } else {
+//                    validation_errors_found++;
+//                    error_message += validation_errors_found + ". M4- 4.4 PW given 360 Calcium carbonate with D3 tablet(" + cal_360 + ") should be less than or equal to M2.A-2.1 Home Deliveries Attended by SBA+ Non-SBA + M2.B-2.2 Institutional delivery(including c-section) (" + total + ")(" + sba + " + " + non_sba + "+" + institutional_delivery_conducted + ")" + "\n\n";
+//
+//                }
+//
+//            }
+//        }
 
         //@Rule 26
         if (!"".equals(iucd) && !" ".equals(iucd) && !"".equals(sba) && !" ".equals(sba) && !"".equals(non_sba) && !" ".equals(non_sba) && !"".equals(institutional_delivery_conducted) && !" ".equals(institutional_delivery_conducted)) {
@@ -1660,7 +1832,7 @@ public class DataEntryActivity extends BaseActivity implements LoaderManager.Loa
                 if ((Integer.parseInt(pwa_hb)) > Integer.parseInt(pw_visited_anc_checkup)) {
                     if (lang != null && lang.equals("hi")) {
                         validation_errors_found++;
-                        error_message += validation_errors_found + "। M1.A- U1.1.1 हीमोग्लोबिन (Hb)(" + pwa_hb + ") M1-U1.1 गर्भवती महिलाओं की कुल संख्या जो एएनसी जांच (ANC check up) के लिए स्वास्थ्य केंद्र / वी.एच.एन.डी. पर दौरा किया हो से कम या बराबर होना चाहिए (" + pw_visited_anc_checkup + ")" + "\n\n";
+                        error_message += validation_errors_found + "। M1.A- U1.1.1 हीमोग्लोबिन (Hb)(" + pwa_hb + ") M1-U1.1 गर्भवती महिलाओं की कुल संख्या जो एएनसी जांच (सभी एएनसी जांच वाली) के लिए स्वास्थ्य केंद्र / वी.एच.एन.डी. पर दौरा किया हो से कम या बराबर होना चाहिए (" + pw_visited_anc_checkup + ")" + "\n\n";
 
                     } else {
                         validation_errors_found++;
@@ -1673,7 +1845,7 @@ public class DataEntryActivity extends BaseActivity implements LoaderManager.Loa
                 if ((Integer.parseInt(pwa_bp)) > Integer.parseInt(pw_visited_anc_checkup)) {
                     if (lang != null && lang.equals("hi")) {
                         validation_errors_found++;
-                        error_message += validation_errors_found + "। M1.A-U1.1.2 रक्त चाप(" + pwa_bp + ") M1-U1.1 गर्भवती महिलाओं की कुल संख्या जो एएनसी जांच (ANC check up) के लिए स्वास्थ्य केंद्र / वी.एच.एन.डी. पर दौरा किया हो से कम या बराबर होना चाहिए (" + pw_visited_anc_checkup + ")" + "\n\n";
+                        error_message += validation_errors_found + "। M1.A-U1.1.2 रक्त चाप(" + pwa_bp + ") M1-U1.1 गर्भवती महिलाओं की कुल संख्या जो एएनसी जांच (सभी एएनसी जांच वाली) के लिए स्वास्थ्य केंद्र / वी.एच.एन.डी. पर दौरा किया हो से कम या बराबर होना चाहिए (" + pw_visited_anc_checkup + ")" + "\n\n";
 
                     } else {
                         validation_errors_found++;
@@ -1687,7 +1859,7 @@ public class DataEntryActivity extends BaseActivity implements LoaderManager.Loa
                 if ((Integer.parseInt(pwa_urine_albumin)) > Integer.parseInt(pw_visited_anc_checkup)) {
                     if (lang != null && lang.equals("hi")) {
                         validation_errors_found++;
-                        error_message += validation_errors_found + "। M1.A- U1.1.3 यूरिन अल्बूमिन (" + pwa_urine_albumin + ") M1-U1.1 गर्भवती महिलाओं की कुल संख्या जो एएनसी जांच (ANC check up) के लिए स्वास्थ्य केंद्र / वी.एच.एन.डी. पर दौरा किया हो से कम या बराबर होना चाहिए (" + pw_visited_anc_checkup + ")" + "\n\n";
+                        error_message += validation_errors_found + "। M1.A- U1.1.3 यूरिन अल्बूमिन (" + pwa_urine_albumin + ") M1-U1.1 गर्भवती महिलाओं की कुल संख्या जो एएनसी जांच (सभी एएनसी जांच वाली) के लिए स्वास्थ्य केंद्र / वी.एच.एन.डी. पर दौरा किया हो से कम या बराबर होना चाहिए (" + pw_visited_anc_checkup + ")" + "\n\n";
 
                     } else {
                         validation_errors_found++;
@@ -1701,7 +1873,7 @@ public class DataEntryActivity extends BaseActivity implements LoaderManager.Loa
                 if ((Integer.parseInt(pwa_abdominal_check)) > Integer.parseInt(pw_visited_anc_checkup)) {
                     if (lang != null && lang.equals("hi")) {
                         validation_errors_found++;
-                        error_message += validation_errors_found + "। M1.A- U1.1.4 पेट की जांच(" + pwa_abdominal_check + ") M1-U1.1 गर्भवती महिलाओं की कुल संख्या जो एएनसी जांच (ANC check up) के लिए स्वास्थ्य केंद्र / वी.एच.एन.डी. पर दौरा किया हो से कम या बराबर होना चाहिए (" + pw_visited_anc_checkup + ")" + "\n\n";
+                        error_message += validation_errors_found + "। M1.A- U1.1.4 पेट की जांच(" + pwa_abdominal_check + ") M1-U1.1 गर्भवती महिलाओं की कुल संख्या जो एएनसी जांच (सभी एएनसी जांच वाली) के लिए स्वास्थ्य केंद्र / वी.एच.एन.डी. पर दौरा किया हो से कम या बराबर होना चाहिए (" + pw_visited_anc_checkup + ")" + "\n\n";
 
                     } else {
                         validation_errors_found++;
@@ -1715,7 +1887,7 @@ public class DataEntryActivity extends BaseActivity implements LoaderManager.Loa
                 if ((Integer.parseInt(pwa_weight)) > Integer.parseInt(pw_visited_anc_checkup)) {
                     if (lang != null && lang.equals("hi")) {
                         validation_errors_found++;
-                        error_message += validation_errors_found + "। M1.A- U1.1.5 वजन (" + pwa_weight + ")  M1-U1.1 गर्भवती महिलाओं की कुल संख्या जो एएनसी जांच (ANC check up) के लिए स्वास्थ्य केंद्र / वी.एच.एन.डी. पर दौरा किया हो से कम या बराबर होना चाहिए (" + pw_visited_anc_checkup + ")" + "\n\n";
+                        error_message += validation_errors_found + "। M1.A- U1.1.5 वजन (" + pwa_weight + ")  M1-U1.1 गर्भवती महिलाओं की कुल संख्या जो एएनसी जांच (सभी एएनसी जांच वाली) के लिए स्वास्थ्य केंद्र / वी.एच.एन.डी. पर दौरा किया हो से कम या बराबर होना चाहिए (" + pw_visited_anc_checkup + ")" + "\n\n";
 
                     } else {
                         validation_errors_found++;
@@ -1725,22 +1897,39 @@ public class DataEntryActivity extends BaseActivity implements LoaderManager.Loa
                 }
             }
 
+            //Rule 46
             if (!"".equals(anc_registrations) && !" ".equals(anc_registrations)) {
                 if ((Integer.parseInt(anc_registrations)) >= Integer.parseInt(pw_visited_anc_checkup)) {
-                    if (lang != null && lang.equals("hi")) {
-                        validation_errors_found++;
-                        error_message += validation_errors_found + "। M1.A- 1.1 एएनसी के लिए पंजीकृत गर्भवती महिलाओं की कुल संख्या(" + anc_registrations + ") M1-U1.1 गर्भवती महिलाओं की कुल संख्या जो एएनसी जांच (ANC check up) के लिए स्वास्थ्य केंद्र / वी.एच.एन.डी. पर दौरा किया हो से कम  होना चाहिए (" + pw_visited_anc_checkup + ")" + "\n\n";
 
-                    } else {
-                        validation_errors_found++;
-                        error_message += validation_errors_found + ". M1.A- 1.1 ANC registration(" + anc_registrations + ") should be less than M1- U1.1 Pregnant women visited for ANC check up\t(" + pw_visited_anc_checkup + ")" + "\n\n";
+                    if (Integer.parseInt(anc_registrations) != 0 && Integer.parseInt(pw_visited_anc_checkup) != 0) {
+                        if (lang != null && lang.equals("hi")) {
+                            validation_errors_found++;
+                            error_message += validation_errors_found + "। M1.A- 1.1 एएनसी के लिए पंजीकृत गर्भवती महिलाओं की कुल संख्या(" + anc_registrations + ") M1-U1.1 गर्भवती महिलाओं की कुल संख्या जो एएनसी जांच (सभी एएनसी जांच वाली) के लिए स्वास्थ्य केंद्र / वी.एच.एन.डी. पर दौरा किया हो से कम  होना चाहिए (" + pw_visited_anc_checkup + ")" + "\n\n";
 
+                        } else {
+                            validation_errors_found++;
+                            error_message += validation_errors_found + ". M1.A- 1.1 ANC registration(" + anc_registrations + ") should be less than M1- U1.1 Pregnant women visited for ANC check up\t(" + pw_visited_anc_checkup + ")" + "\n\n";
+
+                        }
                     }
+
                 }
             }
 
         }
+        //Rule 46 for blank
+        if ((!"".equals(anc_registrations.trim()) && "".equals(pw_visited_anc_checkup.trim())) || ("".equals(anc_registrations.trim()) && !"".equals(pw_visited_anc_checkup.trim()))) {
 
+            if (lang != null && lang.equals("hi")) {
+                validation_errors_found++;
+                error_message += validation_errors_found + "। M1.A- 1.1 एएनसी के लिए पंजीकृत गर्भवती महिलाओं की कुल संख्या(" + anc_registrations + ") M1-U1.1 गर्भवती महिलाओं की कुल संख्या जो एएनसी जांच (सभी एएनसी जांच वाली) के लिए स्वास्थ्य केंद्र / वी.एच.एन.डी. पर दौरा किया हो से कम  होना चाहिए (" + pw_visited_anc_checkup + ")" + "\n\n";
+
+            } else {
+                validation_errors_found++;
+                error_message += validation_errors_found + ". M1.A- 1.1 ANC registration(" + anc_registrations + ") should be less than M1- U1.1 Pregnant women visited for ANC check up\t(" + pw_visited_anc_checkup + ")" + "\n\n";
+
+            }
+        }
         //Rule 47
         if (!"".equals(NB_ASHA_Female_1800) && !" ".equals(NB_ASHA_Female_1800) && !"".equals(NB_ASHA_Female_2500) && !" ".equals(NB_ASHA_Female_2500)) {
             if ((Integer.parseInt(NB_ASHA_Female_1800) > Integer.parseInt(NB_ASHA_Female_2500))) {
@@ -1788,6 +1977,19 @@ public class DataEntryActivity extends BaseActivity implements LoaderManager.Loa
 
             }
         }
+        //@Rule 9 for blank no:9
+        if ((!"".equals(anc_1st_tri.trim()) && "".equals(anc_registrations.trim())) || ("".equals(anc_1st_tri.trim()) && !"".equals(anc_registrations.trim()))) {
+
+            if (lang != null && lang.equals("hi")) {
+                validation_errors_found++;
+                error_message += validation_errors_found + "। M1.A-1.1.1 एएनसी के लिए पंजीकृत कुल संख्या मे से प्रथम तिमाही के भीतर पंजीकृत गर्भवती महिलाओं की संख्या (12 सप्ताह के भीतर)(" + anc_1st_tri + ") M1.A-1.1 एएनसी के लिए पंजीकृत गर्भवती महिलाओं की कुल संख्या से कम या बराबर होना चाहिए (" + anc_registrations + ")" + "\n\n";
+
+            } else {
+                validation_errors_found++;
+                error_message += validation_errors_found + ". M1.A-1.1.1 ANC registration within 1st trimester (" + anc_1st_tri + ") should be less than or equal to M1.A-1.1 ANC registration  (" + anc_registrations + ")" + "\n\n";
+
+            }
+        }
 
         //Rule:Out of the total number of Hb tests done, Number having Hb < 7 mg <= Number of Hb tests conducted
         if (!"".equals(hb_7) && !" ".equals(hb_7) && !"".equals(hb_conducted) && !" ".equals(hb_conducted)) {
@@ -1801,6 +2003,18 @@ public class DataEntryActivity extends BaseActivity implements LoaderManager.Loa
                     error_message += validation_errors_found + ". M10- 10.1.2 Number having Hb < 7 mg (" + hb_7 + ") should be less than or equal to M10.A-10.1.1 Hb tests conducted  (" + hb_conducted + ")" + "\n\n";
 
                 }
+
+            }
+        }
+        //Rule 10 for blank
+        if ((!"".equals(hb_7.trim()) && "".equals(hb_conducted.trim())) || ("".equals(hb_7.trim()) && !"".equals(hb_conducted.trim()))) {
+            if (lang != null && lang.equals("hi")) {
+                validation_errors_found++;
+                error_message += validation_errors_found + "। M10-10.1.2 एचबी जाँचों की कुल संख्या में से, 7 मिलीग्राम से कम वाले एचबी जाँचों की संख्या(" + hb_7 + ") M10.A-10.1.1 किए गए एचबी जाँचों की संख्यासे कम या उसके बराबर होना चाहिए(" + hb_conducted + ")" + "\n\n";
+
+            } else {
+                validation_errors_found++;
+                error_message += validation_errors_found + ". M10- 10.1.2 Number having Hb < 7 mg (" + hb_7 + ") should be less than or equal to M10.A-10.1.1 Hb tests conducted  (" + hb_conducted + ")" + "\n\n";
 
             }
         }

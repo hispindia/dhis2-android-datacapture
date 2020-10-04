@@ -25,50 +25,55 @@
  * HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
  * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*/
+ */
 
 package org.dhis2.mobile_uphmis.network;
 
 public class URLConstants {
 
-	private URLConstants() { }
+    private URLConstants() {
+    }
 
-	public static final String API_SERVER_INFO = "api/system/info/";
-	public static final String API_USER_ACCOUNT_URL = "api/me";
-	public static final String API_USER_SETTINGS= "api/userSettings";
-//	public static final String API_UPDATE_LOCALE= "api/29/userSettings/keyDbLocale?user=t-android&value=rr";
-	public static final String API_UPDATE_LOCALE= "api/29/userSettings/keyDbLocale?user=";
-	public static final String API_MIN= "api/dataStore/minimum/";
-	public static final String API_MIN_DEFAULT= "api/minMaxDataElements";
-	public static final String API_MAX= "api/dataStore/maximum/";
-	public static final String API_ME_ORG= "api/me?fields=organisationUnits[id]";
-	public static final String OPTION_SET_PARAM = "?fields=id,name,created,lastUpdated," +
-			"externalAccess,version,options[id,name,code,created,lastUpdated]";
-	public static final String OPTION_SET_URL = "api/optionSets";
-	public static final String PARENT_SQLVIEW = "api/sqlViews.json?filter=displayName:eq:dis_parent";
-	public static final String DATASETS_URL = "api/me/assignedDataSets";
-	public static final String DATA_ORGUNIT = "api/organisationUnits/";
-	public static final String DATASET_UPLOAD_URL = "api/dataValueSets?preheatCache=true";
-//	public static final String DATASET_UPLOAD_URL = "api/dataValueSets";
-	public static final String DATASET_VALUES_URL = "api/dataSets";
-	public static final String CATEGORY_COMBOS_URL = "api/categoryCombos";
-	public static final String DATA_APPROVALS_URL = "api/dataApprovals";
+    public static final String API_SERVER_INFO = "api/system/info/";
+    public static final String API_USER_ACCOUNT_URL = "api/me";
+    public static final String API_USER_SETTINGS = "api/userSettings";
+    //	public static final String API_UPDATE_LOCALE= "api/29/userSettings/keyDbLocale?user=t-android&value=rr";
+    public static final String API_UPDATE_LOCALE = "api/29/userSettings/keyDbLocale?user=";
+    public static final String API_MIN = "api/dataStore/minimum/";
+    public static final String API_MIN_DEFAULT = "api/minMaxDataElements";
+    public static final String API_MAX = "api/dataStore/maximum/";
+    public static final String API_ME_ORG = "api/me?fields=organisationUnits[id]";
+    public static final String OPTION_SET_PARAM = "?fields=id,name,created,lastUpdated," +
+            "externalAccess,version,options[id,name,code,created,lastUpdated]";
+    public static final String OPTION_SET_URL = "api/optionSets";
 
-	public static final String FORM_PARAM = "form?ou=";
-	public static final String DATA_SET_DATA_ELEMENTS_META_DATA_PARAM =
-			"fields=fieldCombinationRequired,compulsoryDataElementOperands[categoryOptionCombo,"
-					+ "dataElement[id]],categoryCombo[id,categoryOptionCombos],"
-					+ "dataSetElements[dataElement,categoryCombo[id,"
-			+ "categoryOptionCombos]],sections[name,categoryCombos[categoryOptionCombos]],dataInputPeriods";
-	public static final String DATA_SET_DATA_ELEMENTS_META_DATA_API_25_PARAM = "fields=compulsoryDataElementOperands[categoryOptionCombo,dataElement[id]],categoryCombo[id,categoryOptionCombos],dataSetElements[dataElement,categoryCombo[id,"
-			+ "categoryOptionCombos]],sections[name,categoryCombo[categoryOptionCombos[id]]";
-	public static final String PERIOD_PARAM = "&pe=";
-	public static final String ORG_UNIT_PARAM = "&ou=";
-	public static final String DATA_SET_PARAM = "?ds=";
-	public static final String CATEGORY_OPTIONS_PARAM = "&categoryOptions=";
+    public static final String DATASETS_URL = "api/me/assignedDataSets";
+    public static final String DATA_ORGUNIT = "api/organisationUnits/";
+    public static final String DATASET_UPLOAD_URL = "api/dataValueSets?preheatCache=true";
+    //	public static final String DATASET_UPLOAD_URL = "api/dataValueSets";
+    public static final String DATASET_VALUES_URL = "api/dataSets";
+    public static final String PARENT_SQLVIEW = "api/sqlViews.json?filter=displayName:eq:dis_parent";
+    public static final String SQLVIEW_API = "api/sqlViews/";
+    public static final String BLOCK_SQLVIEW = "api/sqlViews.json?filter=displayName:eq:block_parent";
+    public static final String LOCKEX_SQLVIEW = "api/sqlViews.json?filter=displayName:eq:lock_check";
+    public static final String SYSTEM_INFO = "api/system/info";
+    public static final String CATEGORY_COMBOS_URL = "api/categoryCombos";
+    public static final String DATA_APPROVALS_URL = "api/dataApprovals";
 
-	public static final String FILTER_ORGUNIT = "?withinUserHierarchy=true&includeDescendants=true";
+    public static final String FORM_PARAM = "form?ou=";
+    public static final String DATA_SET_DATA_ELEMENTS_META_DATA_PARAM =
+            "fields=fieldCombinationRequired,compulsoryDataElementOperands[categoryOptionCombo,"
+                    + "dataElement[id]],categoryCombo[id,categoryOptionCombos],"
+                    + "dataSetElements[dataElement,categoryCombo[id,"
+                    + "categoryOptionCombos]],sections[name,categoryCombos[categoryOptionCombos]],dataInputPeriods";
+    public static final String DATA_SET_DATA_ELEMENTS_META_DATA_API_25_PARAM = "fields=compulsoryDataElementOperands[categoryOptionCombo,dataElement[id]],categoryCombo[id,categoryOptionCombos],dataSetElements[dataElement,categoryCombo[id,"
+            + "categoryOptionCombos]],sections[name,categoryCombo[categoryOptionCombos[id]]";
+    public static final String PERIOD_PARAM = "&pe=";
+    public static final String ORG_UNIT_PARAM = "&ou=";
+    public static final String DATA_SET_PARAM = "?ds=";
+    public static final String CATEGORY_OPTIONS_PARAM = "&categoryOptions=";
 
+    public static final String FILTER_ORGUNIT = "?withinUserHierarchy=true&includeDescendants=true";
 
 
 }

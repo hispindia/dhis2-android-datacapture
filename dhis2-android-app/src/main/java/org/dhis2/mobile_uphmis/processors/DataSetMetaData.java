@@ -33,7 +33,8 @@ public class DataSetMetaData {
             String formId, boolean oldApi) throws NetworkException {
         String url = buildUrl(context, formId, oldApi);
         String credentials = PrefUtils.getCredentials(context);
-        Response response = HTTPClient.get(url, credentials);
+        String parent_dis= PrefUtils.getDstrictParent(context);
+        Response response = HTTPClient.get(url, credentials,parent_dis);
         if (response.getCode() >= 200 && response.getCode() < 300) {
             return response.getBody();
         }else{

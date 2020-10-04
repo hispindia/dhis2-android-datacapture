@@ -52,7 +52,7 @@ public class HTTPClient {
     }
 
 
-    public static Response get(String server, String creds,String parent_dis) {
+    public static Response get(String server, String creds, String parent_dis) {
         Log.i("GET", server);
         int code = -1;
         String body = "";
@@ -67,7 +67,7 @@ public class HTTPClient {
             connection.setRequestProperty("Authorization", "Basic " + creds);
             connection.setRequestProperty("Accept", "application/json");
             connection.setRequestMethod("GET");
-            connection.setRequestProperty("User-agent", "uphmis_aws_2608/"+ System.getProperty("http.agent"));
+            connection.setRequestProperty("User-agent", "uphmis_aws_3009/" + System.getProperty("http.agent"));
             connection.setRequestProperty("districtuid:", parent_dis);
             connection.setDoInput(true);
             connection.connect();
@@ -94,10 +94,13 @@ public class HTTPClient {
             }
         }
         Log.i(Integer.toString(code), body);
+        Log.d("GET--", body);
         return (new Response(code, body));
     }
 
     public static Response post(String server, String creds, String data) {
+        Log.d("POST--data", data.toString());
+        Log.i("POST", server);
         int code = -1;
         String body = "";
         String parentdis = "";
@@ -111,7 +114,8 @@ public class HTTPClient {
             connection.setRequestProperty("Content-Type", "application/json;charset=UTF-8");
             connection.setRequestProperty("districtuid:", parentdis);
             connection.setRequestMethod("POST");
-            connection.setRequestProperty("User-agent", "uphmis_aws_2608/" + System.getProperty("http.agent"));
+            connection.setRequestProperty("User-agent", "uphmis_aws_3009/" + System.getProperty("http.agent"));
+
             connection.setDoOutput(true);
             OutputStream output = connection.getOutputStream();
             output.write(data.getBytes());
@@ -140,6 +144,8 @@ public class HTTPClient {
                 connection.disconnect();
             }
         }
+        Log.i(Integer.toString(code), body);
+        Log.d("POST--", body);
         return (new Response(code, body));
     }
 
@@ -160,9 +166,7 @@ public class HTTPClient {
             connection.setRequestProperty("Authorization", "Basic " + creds);
             connection.setRequestProperty("Content-Type", "application/json;charset=UTF-8");
             connection.setRequestMethod("POST");
-            //useragent string
-            connection.setRequestProperty("User-agent", "uphmis_aws_2608/" + System.getProperty("http.agent"));
-            //ToDo additional request for district uid
+            connection.setRequestProperty("User-agent", "uphmis_aws_3009/" + System.getProperty("http.agent"));
             connection.setRequestProperty("districtuid:", parentdis);
             connection.setDoOutput(true);
             OutputStream output = connection.getOutputStream();

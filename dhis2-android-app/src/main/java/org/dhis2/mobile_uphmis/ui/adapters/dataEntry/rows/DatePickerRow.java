@@ -25,7 +25,7 @@
  * HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
  * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*/
+ */
 
 package org.dhis2.mobile_uphmis.ui.adapters.dataEntry.rows;
 
@@ -52,13 +52,13 @@ public class DatePickerRow implements Row {
     private Context context;
     private LocalDate currentDate;
     public boolean readOnly = false;
-    
+
     public DatePickerRow(LayoutInflater inflater, Field field, FieldAdapter adapter, Context context) {
-        this.inflater= inflater;
+        this.inflater = inflater;
         this.field = field;
         this.adapter = adapter;
         this.context = context;
-        
+
         currentDate = new LocalDate();
     }
 
@@ -66,42 +66,42 @@ public class DatePickerRow implements Row {
     public View getView(View convertView) {
         View view;
         DatePickerRowHolder holder;
-        
+
         if (convertView == null) {
             ViewGroup rootView = (ViewGroup) inflater.inflate(R.layout.listview_row_datepicker, null);
-            
+
             TextView textLabel = (TextView) rootView.findViewById(R.id.text_label);
             ImageView clearButton = (ImageView) rootView.findViewById(R.id.clearEditText);
             EditText pickerInvoker = (EditText) rootView.findViewById(R.id.date_picker_dialog_invoker);
-          
+
             DateSetListener dateSetListener = new DateSetListener(field, adapter);
             OnEditTextClickListener invokerListener = new OnEditTextClickListener(field, currentDate, dateSetListener, context);
             ClearButtonListener clButtonListener = new ClearButtonListener(pickerInvoker, field);
-            
+
             pickerInvoker.setOnClickListener(invokerListener);
             clearButton.setOnClickListener(clButtonListener);
-            
-            holder = new DatePickerRowHolder(textLabel, pickerInvoker, clearButton, 
+
+            holder = new DatePickerRowHolder(textLabel, pickerInvoker, clearButton,
                     clButtonListener, dateSetListener, invokerListener);
-            
+
             rootView.setTag(holder);
-            
-            view = rootView; 
+
+            view = rootView;
         } else {
             view = convertView;
-            holder = (DatePickerRowHolder) view.getTag();  
+            holder = (DatePickerRowHolder) view.getTag();
         }
         RowCosmetics.setTextLabel(field, holder.textLabel);
-        
+
         holder.dateSetListener.setField(field);
         holder.invokerListener.setFieldAndListener(field, holder.dateSetListener);
         holder.pickerInvoker.setText(field.getValue());
         holder.pickerInvoker.setOnClickListener(holder.invokerListener);
-        
+
         holder.cbListener.setEditText(holder.pickerInvoker, field);
         holder.clearButton.setOnClickListener(holder.cbListener);
 
-        if(readOnly){
+        if (readOnly) {
             holder.clearButton.setEnabled(false);
             holder.pickerInvoker.setEnabled(false);
         } else {
@@ -129,11 +129,11 @@ public class DatePickerRow implements Row {
         final OnEditTextClickListener invokerListener;
         final ImageView clearButton;
         final ClearButtonListener cbListener;
-        
-        DatePickerRowHolder(TextView textLabel, EditText pickerInvoker, 
-                ImageView clearButton, ClearButtonListener cbListener, 
-                DateSetListener dateSetListener, OnEditTextClickListener invokerListener) {
-            
+
+        DatePickerRowHolder(TextView textLabel, EditText pickerInvoker,
+                            ImageView clearButton, ClearButtonListener cbListener,
+                            DateSetListener dateSetListener, OnEditTextClickListener invokerListener) {
+
             this.textLabel = textLabel;
             this.pickerInvoker = pickerInvoker;
             this.dateSetListener = dateSetListener;
@@ -142,67 +142,67 @@ public class DatePickerRow implements Row {
             this.cbListener = cbListener;
         }
     }
-    
+
     private class DateSetListener implements OnDateSetListener {
         private Field field;
         private FieldAdapter adapter;
-    
+
         DateSetListener(Field field, FieldAdapter adapter) {
             this.field = field;
             this.adapter = adapter;
         }
-        
+
         void setField(Field field) {
             this.field = field;
         }
-        
+
         @Override
         public void onDateSet(LocalDate date) {
             field.setValue(date.toString("YYYY-MM-dd"));
             adapter.notifyDataSetChanged();
         }
-        
+
     }
-    
+
     private class OnEditTextClickListener implements OnClickListener {
         private Field field;
         private DateSetListener listener;
         private LocalDate currentDate;
         private Context context;
-       
-        OnEditTextClickListener(Field field, LocalDate currentDate, 
-                DateSetListener listener, Context context) {
+
+        OnEditTextClickListener(Field field, LocalDate currentDate,
+                                DateSetListener listener, Context context) {
             this.currentDate = currentDate;
-            
+
             this.field = field;
             this.listener = listener;
             this.context = context;
         }
-        
+
         void setFieldAndListener(Field field, DateSetListener listener) {
             this.field = field;
             this.listener = listener;
-        } 
-        
-		@Override
+        }
+
+        @Override
         public void onClick(View view) {
             DatePickerDialog picker = new DatePickerDialog(context, listener, field.getLabel(),
                     currentDate.getYear(), currentDate.getMonthOfYear() - 1, currentDate.getDayOfMonth());
             //@Sou disable future dates for selection
             picker.getDatePicker().setMaxDate(System.currentTimeMillis());
             picker.show();
-        }   
+        }
     }
-    
+
     private class ClearButtonListener implements OnClickListener {
         private EditText editText;
         private Field field;
-        
+
         public ClearButtonListener(EditText editText, Field field) {
             this.editText = editText;
             this.field = field;
         }
-        
+
         public void setEditText(EditText editText, Field field) {
             this.editText = editText;
             this.field = field;
@@ -212,6 +212,6 @@ public class DatePickerRow implements Row {
         public void onClick(View view) {
             editText.setText(Field.EMPTY_FIELD);
             field.setValue(Field.EMPTY_FIELD);
-        }     
+        }
     }
 }

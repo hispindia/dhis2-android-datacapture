@@ -25,7 +25,7 @@
  * HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
  * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*/
+ */
 
 package org.dhis2.mobile_uphmis.ui.activities;
 
@@ -40,8 +40,11 @@ import org.dhis2.mobile_uphmis.R;
 import org.dhis2.mobile_uphmis.utils.PrefUtils;
 
 import io.fabric.sdk.android.Fabric;
+
 import java.util.Locale;
+
 import android.content.res.Configuration;
+
 /* LauncherActivity is entry point in application */
 public class LauncherActivity extends AppCompatActivity {
 
@@ -51,9 +54,8 @@ public class LauncherActivity extends AppCompatActivity {
         Stetho.initializeWithDefaults(this);
         Fabric.with(this, new Crashlytics());
         setContentView(R.layout.activity_launcher);
-        String lang=PrefUtils.getLocale(getBaseContext());
-        if (lang!=null&&lang.equals("hi"))
-        {
+        String lang = PrefUtils.getLocale(getBaseContext());
+        if (lang != null && lang.equals("hi")) {
             Locale locale = new Locale("hi");
             Locale.setDefault(locale);
             Configuration config = getBaseContext().getResources().getConfiguration();

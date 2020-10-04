@@ -60,7 +60,8 @@ public class ReportDownloadProcessor {
     public static void download(Context context, DatasetInfoHolder info) {
         String url = buildUrl(context, info);
         String creds = PrefUtils.getCredentials(context);
-        Response response = HTTPClient.get(url, creds);
+        String parent_dis = PrefUtils.getDstrictParent(context);
+        Response response = HTTPClient.get(url, creds,parent_dis);
         int responseCode = response.getCode();
         int parsingStatusCode = JsonHandler.PARSING_OK_CODE;
         Form form = null;
@@ -83,7 +84,8 @@ public class ReportDownloadProcessor {
 
         if(responseCode == 500 && url.contains("pe=")){
             url = url.replace("pe","period");
-            Response response2 = HTTPClient.get(url, creds);
+            String  parent_dis_ = PrefUtils.getDstrictParent(context);
+            Response response2 = HTTPClient.get(url, creds,parent_dis_);
             responseCode = response2.getCode();
             parsingStatusCode = JsonHandler.PARSING_OK_CODE;
             form = null;

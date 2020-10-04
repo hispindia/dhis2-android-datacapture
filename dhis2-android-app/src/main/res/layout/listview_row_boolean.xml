@@ -31,13 +31,13 @@
             android:text="@string/no_button"
             app:font="@string/regular_font_name" />
 
-        <org.dhis2.mobile_uphmis.ui.views.FontRadioButton
-            android:id="@+id/none_button"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textSize="16sp"
-            android:text="@string/none_button"
-            app:font="@string/regular_font_name"/>
+<!--        <org.dhis2.mobile_uphmis.ui.views.FontRadioButton-->
+<!--            android:id="@+id/none_button"-->
+<!--            android:layout_width="wrap_content"-->
+<!--            android:layout_height="wrap_content"-->
+<!--            android:textSize="16sp"-->
+<!--            android:text="@string/none_button"-->
+<!--            app:font="@string/regular_font_name"/>-->
     </RadioGroup>
 
 </LinearLayout>

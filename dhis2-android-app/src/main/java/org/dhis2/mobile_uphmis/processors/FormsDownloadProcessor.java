@@ -87,12 +87,13 @@ public class FormsDownloadProcessor {
     private static final String DATASETS = "dataSets";
     private static final String OPTIONS = "options";
     private static final String CATEGORY_COMBO = "categoryCombo";
+    private static  String parent_dis = "";
 
     public static void updateDatasets(Context context, boolean isFirstPull) {
         PrefUtils.setResourceState(context,
                 PrefUtils.Resources.DATASETS,
                 PrefUtils.State.REFRESHING);
-
+        parent_dis = PrefUtils.getDstrictParent(context);
         int networkStatusCode = HttpURLConnection.HTTP_OK;
         int parsingStatusCode = JsonHandler.PARSING_OK_CODE;
 
@@ -494,7 +495,8 @@ public class FormsDownloadProcessor {
     }
 
     private static Response download(String url, String creds) throws NetworkException {
-        Response response = HTTPClient.get(url, creds);
+
+        Response response = HTTPClient.get(url, creds,parent_dis);
 
         if (!HTTPClient.isError(response.getCode())) {
             return response;

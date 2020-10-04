@@ -39,10 +39,11 @@
         <activity
             android:name="org.dhis2.mobile_uphmis.ui.fragments.report_analysis_offline_data"
             android:windowSoftInputMode="adjustPan" />
+        <!--@Sou handle screen rotation-->
         <activity
             android:name="org.dhis2.mobile_uphmis.ui.activities.DataEntryActivity"
             android:windowSoftInputMode="adjustPan"
-            android:configChanges="keyboardHidden|orientation"/>
+            android:configChanges="keyboardHidden|orientation|screenSize"/>
         <activity
             android:name="org.dhis2.mobile_uphmis.ui.fragments.AggregateReportFragment"
             android:windowSoftInputMode="adjustPan" />

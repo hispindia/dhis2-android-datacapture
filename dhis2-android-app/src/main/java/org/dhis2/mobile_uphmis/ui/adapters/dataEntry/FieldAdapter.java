@@ -176,11 +176,11 @@ public class FieldAdapter extends BaseAdapter   {
         for (int i = 0; i < fields.size(); i++) {
             if (fields.get(i).getDataElement().equals("OrMq254iPQ2")&&fields.get(i).getCategoryOptionCombo().equals("LeWpv23NQE0"))
             {
-                still_fresh=fields.get(i).getValue();
+                still_fresh=fields.get(i).getValue().trim();
             }
             if (fields.get(i).getDataElement().equals("OrMq254iPQ2")&&fields.get(i).getCategoryOptionCombo().equals("ocOywnb7dim"))
             {
-                still_mas=fields.get(i).getValue();
+                still_mas = fields.get(i).getValue().trim();
 
                 if (still_mas.length()>0||still_fresh.length()>0)
                 {
@@ -207,6 +207,10 @@ public class FieldAdapter extends BaseAdapter   {
 
                     }
 
+                }
+                else if ("".equals(still_mas)&&"".equals(still_fresh))
+                {
+                    fields.get(3).setValue("");
                 }
             }
 //            if (fields.get(i).getDataElement().equals("mexWK5BLs5H")&&fields.get(i).getCategoryOptionCombo().equals("Ti9FJqkSK6J"))
@@ -986,26 +990,26 @@ public class FieldAdapter extends BaseAdapter   {
                 still_fresh=df.getValue().trim();
             }
 
-            else if (df.getDataElement().equals("OrMq254iPQ2")&&df.getCategoryOptionCombo().equals("ocOywnb7dim"))
-            {
-                still_mas=df.getValue().trim();
-                if (df.getValue().trim().length()>0)
-                {
-                    Integer still_total=0;
-                    if (!"".equals(still_fresh))
-                    {
-                        still_total=Integer.parseInt(still_mas)+Integer.parseInt(still_fresh);
-                    }
-                    else
-                    {
-                        still_total=Integer.parseInt(still_mas);
-
-                    }
-
-                    still_hmis=still_total.toString();
-                }
-
-            }
+//            else if (df.getDataElement().equals("OrMq254iPQ2")&&df.getCategoryOptionCombo().equals("ocOywnb7dim"))
+//            {
+//                still_mas=df.getValue().trim();
+//                if (df.getValue().trim().length()>0)
+//                {
+//                    Integer still_total=0;
+//                    if (!"".equals(still_fresh))
+//                    {
+//                        still_total=Integer.parseInt(still_mas)+Integer.parseInt(still_fresh);
+//                    }
+//                    else
+//                    {
+//                        still_total=Integer.parseInt(still_mas);
+//
+//                    }
+//
+//                    still_hmis=still_total.toString();
+//                }
+//
+//            }
 
 //            var JSONObject = {"animals": [{name:"cat"}, {name:"dog"}]};
 //            for (i=0; i < JSONObject.animals.length; i++) {

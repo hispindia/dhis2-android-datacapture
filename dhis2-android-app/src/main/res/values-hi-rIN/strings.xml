@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">DHIS2 Data Capture</string>
+    <string name="app_name">UPHMIS</string>
     <string name="about_this_app" >इस ऐप के बारे में</string>
     <string name="aggregate_reporting">डेटा कैप्चर</string>
     <string name="all_questions_compulsories_error">सभी फ़ील्ड में डेटा भरा जाना अनिवार्य है, कृपया आगे बढ़ने से पहले सभी फ़ील्ड भरें</string>
@@ -103,7 +103,7 @@
     <string name="wrong_url">"गलत यूआरएल "</string>
     <string name="wrong_username_password">गलत पासवर्ड या उपयोगकर्ता नाम</string>
     <string name="yes_button">हाँ</string>
-    <string name="dialog_outlier">कृपया मूल्य सही करें</string>
+    <string name="dialog_outlier">कृपया मूल्य की जाँच करें</string>
     <string name="dialog_validation">उपरोक्त त्रुटियों को सही करें</string>
     <string name="title_validation">सत्यापन के परिणाम:</string>
     <string name="maximum_v">और अधिकतम: </string>

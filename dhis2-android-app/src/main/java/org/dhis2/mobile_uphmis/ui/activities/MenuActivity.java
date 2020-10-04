@@ -25,7 +25,7 @@
  * HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
  * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*/
+ */
 
 package org.dhis2.mobile_uphmis.ui.activities;
 
@@ -66,9 +66,8 @@ public class MenuActivity extends BaseActivity implements OnNavigationItemSelect
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        String lang= PrefUtils.getLocale(getBaseContext());
-        if (lang!=null&&lang.equals("hi"))
-        {
+        String lang = PrefUtils.getLocale(getBaseContext());
+        if (lang != null && lang.equals("hi")) {
             Locale locale = new Locale("hi");
             Locale.setDefault(locale);
             Configuration config = getBaseContext().getResources().getConfiguration();
@@ -105,7 +104,7 @@ public class MenuActivity extends BaseActivity implements OnNavigationItemSelect
             setTitle(savedInstanceState.getString(STATE_TOOLBAR_TITLE));
         }
 
-        if(ViewUtils.fragmentSelected != null) {
+        if (ViewUtils.fragmentSelected != null) {
             attachFragment(ViewUtils.fragmentSelected);
             setTitle(ViewUtils.title);
         }
@@ -190,6 +189,7 @@ public class MenuActivity extends BaseActivity implements OnNavigationItemSelect
 
     private void logOut() {
         // start service in order to remove data
+        //@Sou keep data
         Intent removeDataIntent = new Intent(MenuActivity.this, WorkService.class);
         removeDataIntent.putExtra(WorkService.METHOD, WorkService.METHOD_REMOVE_ALL_DATA);
         startService(removeDataIntent);
@@ -201,16 +201,17 @@ public class MenuActivity extends BaseActivity implements OnNavigationItemSelect
         clearAppData();
         finish();
     }
+
     private void clearAppData() {
         try {
             // clearing app data
             if (Build.VERSION_CODES.KITKAT <= Build.VERSION.SDK_INT) {
-                ((ActivityManager)getSystemService(ACTIVITY_SERVICE)).clearApplicationUserData();// note: it has a return value!
+                ((ActivityManager) getSystemService(ACTIVITY_SERVICE)).clearApplicationUserData();// note: it has a return value!
 
             } else {
                 String packageName = getApplicationContext().getPackageName();
                 Runtime runtime = Runtime.getRuntime();
-                runtime.exec("pm clear "+packageName);
+                runtime.exec("pm clear " + packageName);
 
             }
 

@@ -84,7 +84,8 @@ public class MyProfileProcessor {
 
         String url = PrefUtils.getServerURL(context) + URLConstants.API_USER_ACCOUNT_URL;
         String creds = PrefUtils.getCredentials(context);
-        Response response = HTTPClient.get(url, creds);
+        String  parent_dis = PrefUtils.getDstrictParent(context);
+        Response response = HTTPClient.get(url, creds,parent_dis);
 
         PrefUtils.State profileState;
         if (!HTTPClient.isError(response.getCode())) {

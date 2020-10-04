@@ -87,7 +87,7 @@
 <!--    <string name="server_url_up">https://uphmis.in/uphmis</string>-->
     <string name="server_url_up">https://up.dhis2.org/uphmis</string>
 <!--    <string name="server_url_up">https://ln1.hispindia.org/uphmis230</string>-->
-<!--    <string name="server_url_up">http://172.16.13.51:8080/dhis</string>-->
+<!--    <string name="server_url_up">http://192.168.43.62:8080/dhis</string>-->
 <!--    <string name="server_url_up">http://164.52.194.73/uphmis</string>-->
 <!--    <string name="server_url_up">http://192.168.137.1:8080/dhis</string>-->
 <!--    <string name="server_url_up">http://192.168.0.100:8080/dhis</string>-->
@@ -152,6 +152,7 @@
     <string name="minax_title">Min Max Break:</string>
     <string name="dialog_exit_survey_no">No</string>
     <string name="save_data_set">save dataset</string>
+    <string name="version_no"><u>Version: uphmis_aws_3009</u></string>
     <string name="dialog_period_not_supported">"Period type not supported: %s"</string>
 
     <string name="dataset_readonly_by_approve">"Data set already approved"</string>
