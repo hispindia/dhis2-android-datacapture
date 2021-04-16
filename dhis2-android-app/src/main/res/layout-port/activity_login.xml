@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/white"
+    android:descendantFocusability="beforeDescendants"
+    android:focusableInTouchMode="true"
+    android:paddingBottom="@dimen/activity_vertical_margin"
+    android:paddingLeft="@dimen/activity_horizontal_margin"
+    android:paddingRight="@dimen/activity_horizontal_margin"
+    android:paddingTop="@dimen/activity_vertical_margin">
+
+    <include layout="@layout/progress_bar" />
+
+    <ImageView
+        android:id="@+id/dhis2_logo"
+        android:layout_width="205dp"
+        android:layout_height="109dp"
+        android:layout_alignParentTop="true"
+        android:layout_marginTop="169dp"
+        android:layout_marginBottom="@dimen/dhis2_logo_margin_bottom"
+        android:contentDescription="@string/desc"
+        android:src="@drawable/up_logo_hd" />
+
+    <org.dhis2.mobile_uphmis.ui.views.FontEditText
+        android:id="@+id/server_url"
+        style="@style/LoginEditTextProperies"
+        android:text="@string/server_url_up"
+        android:enabled="false"
+        android:layout_below="@id/dhis2_logo"
+        android:visibility="gone"
+        android:layout_centerHorizontal="true"
+        android:drawableLeft="@drawable/ic_server"
+        android:hint="@string/server_url"
+        android:inputType="textUri"
+        app:font="@string/regular_font_name" />
+
+    <org.dhis2.mobile_uphmis.ui.views.FontEditText
+        android:id="@+id/username"
+        style="@style/LoginEditTextProperies"
+        android:layout_below="@+id/server_url"
+        android:layout_centerHorizontal="true"
+        android:drawableLeft="@drawable/ic_username"
+        android:hint="@string/username"
+        app:font="@string/regular_font_name" />
+
+    <org.dhis2.mobile_uphmis.ui.views.FontEditText
+        android:id="@+id/password"
+        style="@style/LoginEditTextProperies"
+        android:layout_below="@+id/username"
+        android:layout_centerHorizontal="true"
+        android:drawableLeft="@drawable/ic_password"
+        android:hint="@string/password"
+        android:inputType="textPassword"
+        app:font="@string/regular_font_name" />
+
+
+    <Spinner
+        android:id="@+id/spinner1"
+        style="@style/LanguageSelector"
+        android:layout_below="@+id/password"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="0dp"
+        android:entries="@array/language_arrays"
+        android:prompt="@string/language_prompt" />
+
+    <org.dhis2.mobile_uphmis.ui.views.FontButton
+        android:id="@+id/login_button"
+        android:layout_width="180dp"
+        android:layout_height="40dp"
+        android:layout_centerHorizontal="true"
+        android:layout_below="@+id/spinner1"
+        android:layout_marginTop="15dp"
+        android:background="@drawable/loginbutton_custom_selector"
+        android:text="@string/login_button"
+        android:textColor="@android:color/white"
+        android:textSize="17sp"
+        android:textStyle="bold"
+        app:font="@string/regular_font_name" />
+
+    <ImageView
+        android:id="@+id/imageView"
+        android:layout_width="194dp"
+        android:layout_height="228dp"
+        android:layout_below="@id/login_button"
+        android:layout_marginLeft="-97dp"
+        android:layout_marginTop="-374dp"
+        android:layout_toRightOf="@+id/imageView2"
+        app:srcCompat="@drawable/nhm_lo" />
+
+    <TextView
+        android:id="@+id/textView5"
+        android:textSize="12sp"
+        android:layout_width="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:textStyle="bold"
+        android:layout_height="wrap_content"
+        android:text="@string/version_no" />
+
+    <ImageView
+        android:id="@+id/imageView2"
+        android:layout_width="158dp"
+        android:layout_height="135dp"
+        android:layout_below="@id/login_button"
+        android:layout_above="@id/textView5"
+        android:layout_centerHorizontal="true"
+        android:layout_marginLeft="0dp"
+        android:layout_marginTop="82dp"
+        app:srcCompat="@drawable/uptsu" />
+
+</RelativeLayout>
